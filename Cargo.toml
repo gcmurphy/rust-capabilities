@@ -1,0 +1,7 @@
+[package]
+name = "capabilities"
+version = "0.1.0"
+authors = ["Grant Murphy <grantcmurphy@gmail.com>"]
+
+[dependencies]
+libc = "*"
