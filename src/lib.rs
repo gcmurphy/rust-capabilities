@@ -1,6 +1,5 @@
 extern crate libc;
 
-
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
 
 #[allow(non_camel_case_types)]
@@ -33,13 +32,13 @@ extern "C" {
 	fn cap_dup(cap: cap_t) -> cap_t;
 
     /* libcap/cap_flag.c */
-    fn cap_get_flag(c: cap_t, vt: cap_value_t, 
-                    ft: cap_flag_t, 
+    fn cap_get_flag(c: cap_t, vt: cap_value_t,
+                    ft: cap_flag_t,
                     val: *mut cap_flag_value_t) -> c_int;
 
-    fn cap_set_flag(c: cap_t, f: cap_flag_t, 
-                    ncap: c_int, 
-                    caps: *const cap_value_t, 
+    fn cap_set_flag(c: cap_t, f: cap_flag_t,
+                    ncap: c_int,
+                    caps: *const cap_value_t,
                     val: cap_flag_value_t) -> c_int;
 
     fn cap_clear(c: cap_t) -> c_int;
@@ -63,6 +62,12 @@ extern "C" {
     fn cap_copy_ext(ptr: *mut c_void, cap: cap_t, size: ssize_t) -> ssize_t;
     fn cap_copy_int(ptr: *const c_void) -> cap_t;
     fn cap_compare(a: cap_t, b: cap_t) -> c_int;
+
+    /* libcap/cap_text.c */
+    fn cap_from_text(txt: *const c_char) -> cap_t;
+    fn cap_to_text(cap: cap_t, size: *mut ssize_t) -> *mut c_char;
+    fn cap_from_name(name: *const c_char, val: *mut cap_value_t) -> c_int;
+    fn cap_to_name(val: cap_value_t) -> *mut c_char;
 
 }
 
@@ -288,4 +293,6 @@ pub const CAP_AUDIT_READ: isize = 37;
 
 const CAP_LAST_CAP: isize = CAP_AUDIT_READ;
 pub fn cap_valid(x: isize) -> bool { x >= 0 && x <= CAP_LAST_CAP }
+
+
 
