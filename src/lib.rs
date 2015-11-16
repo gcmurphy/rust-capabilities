@@ -3,6 +3,8 @@ extern crate libc;
 use std::ffi;
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
 use std::fs;
+use std::str::FromStr;
+use std::string::ToString;
 
 // libcapi c-api
 
@@ -16,7 +18,7 @@ type cap_value_t = u32;
 type cap_flag_t = u32;
 
 #[allow(non_camel_case_types)]
-type cap_flag_value_t = isize;
+type cap_flag_value_t = i32;
 
 #[link(name="cap")]
 extern "C" {
@@ -68,7 +70,7 @@ extern "C" {
 
 // rust interface
 
-pub type Capability = i32;
+pub struct Capability(i32);
 
 // Capability descriptions taken from:
 //  https://github.com/torvalds/linux/blob/master/include/uapi/linux/capability.h
@@ -76,22 +78,22 @@ pub type Capability = i32;
 /// In a system with the [_POSIX_CHOWN_RESTRICTED] option defined, this
 /// overrides the restriction of changing file ownership and group
 /// ownership.
-pub const CAP_CHOWN: Capability = 0;
+pub const CAP_CHOWN: Capability = Capability(0);
 
 /// Override all DAC access, including ACL execute access if
 /// [_POSIX_ACL] is defined. Excluding DAC access covered by
 /// CAP_LINUX_IMMUTABLE.
-pub const CAP_DAC_OVERRIDE: Capability = 1;
+pub const CAP_DAC_OVERRIDE: Capability = Capability(1);
 
 /// Overrides all DAC restrictions regarding read and search on files
 /// and directories, including ACL restrictions if [_POSIX_ACL] is
 /// defined. Excluding DAC access covered by CAP_LINUX_IMMUTABLE.
-pub const CAP_DAC_READ_SEARCH: Capability = 2;
+pub const CAP_DAC_READ_SEARCH: Capability =  Capability(2);
 
 /// Overrides all restrictions about allowed operations on files, where
 /// file owner ID must be equal to the user ID, except where CAP_FSETID
 /// is applicable. It doesn't override MAC and DAC restrictions.
-pub const CAP_FOWNER: Capability = 3;
+pub const CAP_FOWNER: Capability = Capability(3);
 
 /// Overrides the following restrictions that the effective user ID
 /// shall match the file owner ID when setting the S_ISUID and S_ISGID
@@ -99,21 +101,21 @@ pub const CAP_FOWNER: Capability = 3;
 /// supplementary group IDs) shall match the file owner ID when setting
 /// the S_ISGID bit on that file; that the S_ISUID and S_ISGID bits are
 /// cleared on successful return from chown(2) (not implemented).
-pub const CAP_FSETID: Capability = 4;
+pub const CAP_FSETID: Capability = Capability(4);
 
 /// Overrides the restriction that the real or effective user ID of a
 /// process sending a signal must match the real or effective user ID
 /// of the process receiving the signal.
-pub const CAP_KILL: Capability = 5;
+pub const CAP_KILL: Capability = Capability(5);
 
 /// - Allows setgid(2) manipulation
 /// - Allows setgroups(2) manipulation
 /// - Allows forged gids on socket credentials passing.
-pub const CAP_SETGID: Capability = 6;
+pub const CAP_SETGID: Capability = Capability(6);
 
 /// - Allows set*uid(2) manipulation (including fsuid).
 /// - Allows forged pids on socket credentials passing.
-pub const CAP_SETUID: Capability = 7;
+pub const CAP_SETUID: Capability = Capability(7);
 
 /// - Without VFS support for capabilities:
 ///   * Transfer any capability in your permitted set to any pid,
@@ -123,17 +125,17 @@ pub const CAP_SETUID: Capability = 7;
 ///     to the current process' inheritable set.
 ///   * Allow taking bits out of capability bounding set
 ///   * Allow modification of the securebits for a process
-pub const CAP_SETPCAP: Capability = 8;
+pub const CAP_SETPCAP: Capability = Capability(8);
 
 /// Allow modification of S_IMMUTABLE and S_APPEND file attributes
-pub const CAP_LINUX_IMMUTABLE: Capability = 9;
+pub const CAP_LINUX_IMMUTABLE: Capability = Capability(9);
 
 /// - Allows binding to TCP/UDP sockets below 1024,
 /// - Allows binding to ATM VCIs below 32
-pub const CAP_NET_BIND_SERVICE: Capability = 10;
+pub const CAP_NET_BIND_SERVICE: Capability = Capability(10);
 
 /// Allows broadcasting, listen to multicast
-pub const CAP_NET_BROADCAST: Capability = 11;
+pub const CAP_NET_BROADCAST: Capability = Capability(11);
 
 /// - Allow interface configuration
 /// - Allow administration of IP firewall, masquerading and accounting
@@ -147,35 +149,35 @@ pub const CAP_NET_BROADCAST: Capability = 11;
 /// - Allow multicasting
 /// - Allow read/write of device-specific registers
 /// - Allow activation of ATM control sockets
-pub const CAP_NET_ADMIN: Capability = 12;
+pub const CAP_NET_ADMIN: Capability = Capability(12);
 
 /// - Allow use of RAW sockets
 /// - Allow use of PACKET sockets
 /// - Allow binding to any address for transparent proxying (also via NET_ADMIN)
-pub const CAP_NET_RAW: Capability = 13;
+pub const CAP_NET_RAW: Capability = Capability(13);
 
 /// - Allow locking of shared memory segments
 /// - Allow mlock and mlockall (which doesn't really have anything to do with IPC)
-pub const CAP_IPC_LOCK: Capability = 14;
+pub const CAP_IPC_LOCK: Capability = Capability(14);
 
 /// Override IPC ownership checks
-pub const CAP_IPC_OWNER: Capability = 15;
+pub const CAP_IPC_OWNER: Capability = Capability(15);
 
 /// Insert and remove kernel modules - modify kernel without limit
-pub const CAP_SYS_MODULE: Capability = 16;
+pub const CAP_SYS_MODULE: Capability = Capability(16);
 
 /// - Allow ioperm/iopl access
 /// - Allow sending USB messages to any device via /proc/bus/usb
-pub const CAP_SYS_RAWIO: Capability = 17;
+pub const CAP_SYS_RAWIO: Capability = Capability(17);
 
 /// Allow the use of chroot
-pub const CAP_SYS_CHROOT: Capability = 18;
+pub const CAP_SYS_CHROOT: Capability = Capability(18);
 
 /// Allow ptrace() of any process
-pub const CAP_SYS_PTRACE: Capability = 19;
+pub const CAP_SYS_PTRACE: Capability = Capability(19);
 
 /// Allow configuration of process accounting
-pub const CAP_SYS_PACCT: Capability = 20;
+pub const CAP_SYS_PACCT: Capability = Capability(20);
 
 /// - Allow configuration of the secure attention key
 /// - Allow administration of the random device
@@ -213,10 +215,10 @@ pub const CAP_SYS_PACCT: Capability = 20;
 ///   arbitrary SCSI commands
 /// - Allow setting encryption key on loopback filesystem
 /// - Allow setting zone reclaim policy
-pub const CAP_SYS_ADMIN: Capability = 21;
+pub const CAP_SYS_ADMIN: Capability = Capability(21);
 
 /// Allow use of reboot()
-pub const CAP_SYS_BOOT: Capability = 22;
+pub const CAP_SYS_BOOT: Capability = Capability(22);
 
 /// - Allow raising priority and setting priority on other (different
 ///   UID) processes
@@ -224,7 +226,7 @@ pub const CAP_SYS_BOOT: Capability = 22;
 ///   processes and setting the scheduling algorithm used by another
 ///   process.
 /// - Allow setting cpu affinity on other processes
-pub const CAP_SYS_NICE: Capability = 23;
+pub const CAP_SYS_NICE: Capability = Capability(23);
 
 /// - Override resource limits. Set resource limits.
 /// - Override quota limits.
@@ -237,38 +239,38 @@ pub const CAP_SYS_NICE: Capability = 23;
 /// - Allow more than 64hz interrupts from the real-time clock
 /// - Override max number of consoles on console allocation
 /// - Override max number of keymaps
-pub const CAP_SYS_RESOURCE: Capability = 24;
+pub const CAP_SYS_RESOURCE: Capability = Capability(24);
 
 /// - Allow manipulation of system clock
 /// - Allow irix_stime on mips
 /// - Allow setting the real-time clock
-pub const CAP_SYS_TIME: Capability = 25;
+pub const CAP_SYS_TIME: Capability = Capability(25);
 
 /// - Allow configuration of tty devices
 /// - Allow vhangup() of tty
-pub const CAP_SYS_TTY_CONFIG: Capability = 26;
+pub const CAP_SYS_TTY_CONFIG: Capability = Capability(26);
 
 /// Allow the privileged aspects of mknod()
-pub const CAP_MKNOD: Capability = 27;
+pub const CAP_MKNOD: Capability = Capability(27);
 
 /// Allow taking of leases on files
-pub const CAP_LEASE: Capability = 28;
+pub const CAP_LEASE: Capability = Capability(28);
 
 /// Allow writing the audit log via unicast netlink socket
-pub const CAP_AUDIT_WRITE: Capability = 29;
+pub const CAP_AUDIT_WRITE: Capability = Capability(29);
 
 /// Allow configurationof audit via unicast netlink socket
-pub const CAP_AUDIT_CONTROL: Capability = 30;
+pub const CAP_AUDIT_CONTROL: Capability = Capability(30);
 
 /// Set file capabilities
-pub const CAP_SETFCAP: Capability = 31;
+pub const CAP_SETFCAP: Capability = Capability(31);
 
 /// Override MAC access.
 /// The base kernel enforces no MAC policy.
 /// An LSM may enforce a MAC policy, and if it does and it chooses
 /// to implement capability based overrides of that policy, this is
 /// the capability it should use to do so.
-pub const CAP_MAC_OVERRIDE: Capability = 32;
+pub const CAP_MAC_OVERRIDE: Capability = Capability(32);
 
 /// Allow MAC configuration or state changes.
 /// The base kernel requires no MAC configuration.
@@ -276,19 +278,19 @@ pub const CAP_MAC_OVERRIDE: Capability = 32;
 /// to implement capability based checks on modifications to that
 /// policy or the data required to maintain it, this is the
 /// capability it should use to do so.
-pub const CAP_MAC_ADMIN: Capability = 33;
+pub const CAP_MAC_ADMIN: Capability = Capability(33);
 
 /// Allow configuring the kernel's syslog (printk behaviour)
-pub const CAP_SYSLOG: Capability = 34;
+pub const CAP_SYSLOG: Capability = Capability(34);
 
 /// Allow triggering something that will wake the system
-pub const CAP_WAKE_ALARM: Capability = 35;
+pub const CAP_WAKE_ALARM: Capability = Capability(35);
 
 /// Allow preventing system suspends
-pub const CAP_BLOCK_SUSPEND: Capability = 36;
+pub const CAP_BLOCK_SUSPEND: Capability = Capability(36);
 
 /// Allow reading the audit log via multicast netlink socket
-pub const CAP_AUDIT_READ: Capability = 37;
+pub const CAP_AUDIT_READ: Capability = Capability(37);
 
 const CAP_LAST_CAP: Capability = CAP_AUDIT_READ;
 
@@ -299,12 +301,14 @@ trait Bound {
 
 impl Bound for Capability {
     fn bound(&self) -> bool {
-        let rc = unsafe { cap_get_bound(*self as cap_value_t) };
+        let Capability(val) = *self;
+        let rc = unsafe { cap_get_bound(val as cap_value_t) };
         rc == 0
     }
 
     fn drop(&self) -> bool {
-        let rc = unsafe { cap_drop_bound(*self as cap_value_t) };
+        let Capability(val) = *self;
+        let rc = unsafe { cap_drop_bound(val as cap_value_t) };
         rc == 0
     }
 }
@@ -315,7 +319,39 @@ trait Valid {
 
 impl Valid for Capability {
     fn is_valid(&self) -> bool {
-        *self >= 0 && *self <= CAP_LAST_CAP
+        let Capability(max) = CAP_LAST_CAP;
+        let Capability(x) = *self;
+        x >= 0 && x <= max
+    }
+}
+
+impl FromStr for Capability {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Capability, ()> {
+        let mut val: u32 = 0;
+        let name = ffi::CString::new(s).unwrap();
+        let rc = unsafe {
+            cap_from_name(name.as_ptr(), &mut val)
+        };
+        if rc != 0 {
+            return Err(());
+        }
+        Ok(Capability(val as i32))
+    }
+}
+
+impl ToString for Capability {
+    fn to_string(&self) -> String {
+        let Capability(value) = *self;
+        if ! self.is_valid(){
+            panic!("Invalid capability value: {}", value);
+        }
+        let ptr = unsafe { cap_to_name(value as u32) };
+        let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
+        let data: Vec<u8> = Vec::from(bytes);
+        unsafe { cap_free(ptr as *mut c_void) };
+        String::from_utf8(data).unwrap()
     }
 }
 
@@ -335,44 +371,10 @@ pub struct CapabilitySet {
 }
 
 
-impl Drop for CapabilitySet {
-    fn drop(&mut self) {
-        unsafe {
-            cap_free(self.capability_set);
-        };
-    }
-}
-
-impl Clone for CapabilitySet {
-    fn clone(&self) -> CapabilitySet {
-        let other = unsafe { cap_dup(self.capability_set) };
-        CapabilitySet{ capability_set: other }
-    }
-}
-
-impl PartialEq for CapabilitySet {
-    fn eq(&self, other: &Self)-> bool {
-        unsafe {
-            cap_compare(self.capability_set, other.capability_set) == 0
-        }
-    }
-}
-
-impl Eq for CapabilitySet {}
-
 impl CapabilitySet {
 
     pub fn new() -> Option<CapabilitySet> {
         let caps = unsafe { cap_init() };
-        if caps.is_null() {
-            return None;
-        }
-        Some(CapabilitySet{ capability_set: caps })
-    }
-
-    pub fn from_text(s: &str) -> Option<CapabilitySet> {
-        let cstr = ffi::CString::new(s).unwrap();
-        let caps = unsafe { cap_from_text(cstr.as_ptr()) };
         if caps.is_null() {
             return None;
         }
@@ -424,5 +426,57 @@ impl CapabilitySet {
 
     pub fn clear_flag(&self, flag: Flag){
         unsafe { cap_clear_flag(self.capability_set, flag as u32) };
+    }
+}
+
+impl Drop for CapabilitySet {
+    fn drop(&mut self) {
+        unsafe {
+            if ! self.capability_set.is_null(){
+                cap_free(self.capability_set);
+            }
+        };
+    }
+}
+
+impl Clone for CapabilitySet {
+    fn clone(&self) -> CapabilitySet {
+        let other = unsafe { cap_dup(self.capability_set) };
+        CapabilitySet{ capability_set: other }
+    }
+}
+
+impl PartialEq for CapabilitySet {
+    fn eq(&self, other: &Self)-> bool {
+        unsafe {
+            cap_compare(self.capability_set, other.capability_set) == 0
+        }
+    }
+}
+
+impl Eq for CapabilitySet {}
+
+
+impl FromStr for CapabilitySet {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<CapabilitySet, ()> {
+        let cstr = ffi::CString::new(s).unwrap();
+        let caps = unsafe { cap_from_text(cstr.as_ptr()) };
+        if caps.is_null() {
+            return Err(());
+        }
+        Ok(CapabilitySet{ capability_set: caps })
+    }
+}
+
+impl ToString for CapabilitySet {
+    fn to_string(&self) -> String {
+        let mut sz: ssize_t = 0;
+        let ptr = unsafe { cap_to_text(self.capability_set, &mut sz) };
+        let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
+        let data: Vec<u8> = Vec::from(bytes);
+        unsafe { cap_free(ptr as *mut c_void) };
+        String::from_utf8(data).unwrap()
     }
 }
