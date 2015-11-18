@@ -3,6 +3,7 @@ extern crate libc;
 use std::ffi;
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
 use std::fs;
+use std::convert::{Into, From};
 use std::str::FromStr;
 use std::string::ToString;
 
@@ -55,9 +56,11 @@ extern "C" {
     fn cap_drop_bound(vt: cap_value_t) -> c_int;
 
     /* libcap/cap_extint.c */
-    fn cap_size(cap: cap_t) -> ssize_t;
-    fn cap_copy_ext(ptr: *mut c_void, cap: cap_t, size: ssize_t) -> ssize_t;
-    fn cap_copy_int(ptr: *const c_void) -> cap_t;
+    // Not currently used
+    fn _cap_size(cap: cap_t) -> ssize_t;
+    fn _cap_copy_ext(ptr: *mut c_void, cap: cap_t, size: ssize_t) -> ssize_t;
+    fn _cap_copy_int(ptr: *const c_void) -> cap_t;
+
     fn cap_compare(a: cap_t, b: cap_t) -> c_int;
 
     /* libcap/cap_text.c */
@@ -70,7 +73,7 @@ extern "C" {
 
 // rust interface
 
-pub struct Capability(i32);
+pub struct Capability(cap_value_t);
 
 // Capability descriptions taken from:
 //  https://github.com/torvalds/linux/blob/master/include/uapi/linux/capability.h
@@ -319,9 +322,16 @@ trait Valid {
 
 impl Valid for Capability {
     fn is_valid(&self) -> bool {
-        let Capability(max) = CAP_LAST_CAP;
-        let Capability(x) = *self;
-        x >= 0 && x <= max
+        let value: cap_value_t = self.into();
+        let max: cap_value_t = (&CAP_LAST_CAP).into();
+        value <= max
+    }
+}
+
+impl<'a> From<&'a Capability> for cap_value_t {
+    fn from(c: &'a Capability) -> cap_value_t {
+        let &Capability(x) = c;
+        return x;
     }
 }
 
@@ -329,7 +339,7 @@ impl FromStr for Capability {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Capability, ()> {
-        let mut val: u32 = 0;
+        let mut val: cap_value_t = 0;
         let name = ffi::CString::new(s).unwrap();
         let rc = unsafe {
             cap_from_name(name.as_ptr(), &mut val)
@@ -337,17 +347,17 @@ impl FromStr for Capability {
         if rc != 0 {
             return Err(());
         }
-        Ok(Capability(val as i32))
+        Ok(Capability(val))
     }
 }
 
 impl ToString for Capability {
     fn to_string(&self) -> String {
-        let Capability(value) = *self;
+        let value: cap_value_t = self.into();
         if ! self.is_valid(){
             panic!("Invalid capability value: {}", value);
         }
-        let ptr = unsafe { cap_to_name(value as u32) };
+        let ptr = unsafe { cap_to_name(value) };
         let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
         let data: Vec<u8> = Vec::from(bytes);
         unsafe { cap_free(ptr as *mut c_void) };
@@ -359,11 +369,6 @@ pub enum Flag {
     Effective=0,
     Permitted=1,
     Inheritable=2
-}
-
-pub enum FlagValue {
-    Clear,
-    Set
 }
 
 pub struct CapabilitySet {
@@ -420,13 +425,29 @@ impl CapabilitySet {
         Some(CapabilitySet{ capability_set: caps })
     }
 
-    pub fn clear(& self){
+    pub fn reset_all(& self){
         unsafe { cap_clear(self.capability_set) };
     }
 
-    pub fn clear_flag(&self, flag: Flag){
+    pub fn reset_flag(&self, flag: Flag){
         unsafe { cap_clear_flag(self.capability_set, flag as u32) };
     }
+
+    pub fn check(&self, cap: &Capability, flag: Flag) -> bool {
+        let mut set: cap_flag_value_t = 0;
+        let rc = unsafe { cap_get_flag(self.capability_set, cap.into(), flag as cap_flag_t, &mut set) };
+        rc == 0 && set == 1
+    }
+
+    pub fn update(&self, caps: &[&Capability], flag: Flag, set: bool) -> bool {
+        let val = match set { true => 1, false => 0 };
+        let raw: Vec<cap_value_t> = caps.iter().map(|&x| x.into()).collect();
+        let rc = unsafe {
+            cap_set_flag(self.capability_set, flag as cap_flag_t, raw.len() as i32, raw.as_ptr(), val)
+        };
+        rc == 0
+    }
+
 }
 
 impl Drop for CapabilitySet {
