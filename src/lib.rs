@@ -304,14 +304,14 @@ trait Bound {
 
 impl Bound for Capability {
     fn bound(&self) -> bool {
-        let Capability(val) = *self;
-        let rc = unsafe { cap_get_bound(val as cap_value_t) };
+        let val: cap_value_t = self.into();
+        let rc = unsafe { cap_get_bound(val) };
         rc == 0
     }
 
     fn drop(&self) -> bool {
-        let Capability(val) = *self;
-        let rc = unsafe { cap_drop_bound(val as cap_value_t) };
+        let val: cap_value_t = self.into();
+        let rc = unsafe { cap_drop_bound(val) };
         rc == 0
     }
 }
@@ -371,30 +371,30 @@ pub enum Flag {
     Inheritable=2
 }
 
-pub struct CapabilitySet {
-    capability_set: cap_t
+pub struct Capabilities {
+    capabilities: cap_t
 }
 
 
-impl CapabilitySet {
+impl Capabilities {
 
-    pub fn new() -> Option<CapabilitySet> {
+    pub fn new() -> Option<Capabilities> {
         let caps = unsafe { cap_init() };
         if caps.is_null() {
             return None;
         }
-        Some(CapabilitySet{ capability_set: caps })
+        Some(Capabilities{ capabilities: caps })
     }
 
-    pub fn from_fd(fd: isize) -> Option<CapabilitySet> {
-        let caps = unsafe { cap_get_fd(fd as libc::c_int) };
+    pub fn from_fd(fd: isize) -> Option<Capabilities> {
+        let caps = unsafe { cap_get_fd(fd as c_int) };
         if caps.is_null(){
             return None;
         }
-        Some(CapabilitySet{ capability_set: caps })
+        Some(Capabilities{ capabilities: caps })
     }
 
-    pub fn from_file(path: &str) -> Option<CapabilitySet> {
+    pub fn from_file(path: &str) -> Option<Capabilities> {
         let file = fs::metadata(path);
         if file.is_err(){
             return None;
@@ -406,36 +406,40 @@ impl CapabilitySet {
             return None;
         }
 
-        Some(CapabilitySet{ capability_set: caps })
+        Some(Capabilities{ capabilities: caps })
     }
 
-    pub fn from_pid(pid: isize) -> Option<CapabilitySet> {
-        let caps = unsafe { cap_get_pid(pid as libc::pid_t) };
+    pub fn from_pid(pid: isize) -> Option<Capabilities> {
+        let caps = unsafe { cap_get_pid(pid as pid_t) };
         if caps.is_null(){
             return None;
         }
-        Some(CapabilitySet{ capability_set: caps })
+        Some(Capabilities{ capabilities: caps })
     }
 
-    pub fn from_current_proc() -> Option<CapabilitySet> {
+    pub fn from_current_proc() -> Option<Capabilities> {
         let caps = unsafe { cap_get_proc() };
         if caps.is_null(){
             return None;
         }
-        Some(CapabilitySet{ capability_set: caps })
+        Some(Capabilities{ capabilities: caps })
     }
 
     pub fn reset_all(& self){
-        unsafe { cap_clear(self.capability_set) };
+        unsafe { cap_clear(self.capabilities) };
     }
 
     pub fn reset_flag(&self, flag: Flag){
-        unsafe { cap_clear_flag(self.capability_set, flag as u32) };
+        unsafe { cap_clear_flag(self.capabilities, flag as u32) };
     }
 
     pub fn check(&self, cap: &Capability, flag: Flag) -> bool {
         let mut set: cap_flag_value_t = 0;
-        let rc = unsafe { cap_get_flag(self.capability_set, cap.into(), flag as cap_flag_t, &mut set) };
+        let capability: cap_value_t = cap.into();
+        let flag_value: cap_flag_t = flag as cap_flag_t;
+        let rc = unsafe {
+            cap_get_flag(self.capabilities, capability, flag_value, &mut set)
+        };
         rc == 0 && set == 1
     }
 
@@ -443,58 +447,80 @@ impl CapabilitySet {
         let val = match set { true => 1, false => 0 };
         let raw: Vec<cap_value_t> = caps.iter().map(|&x| x.into()).collect();
         let rc = unsafe {
-            cap_set_flag(self.capability_set, flag as cap_flag_t, raw.len() as i32, raw.as_ptr(), val)
+            cap_set_flag(self.capabilities, flag as cap_flag_t, raw.len() as i32, raw.as_ptr(), val)
+        };
+        rc == 0
+    }
+
+    pub fn apply(&self) -> bool {
+        let rc = unsafe {
+            cap_set_proc(self.capabilities)
+        };
+        rc == 0
+    }
+
+    pub fn apply_to_fd(&self, fd: i32) -> bool {
+        let rc = unsafe {
+            cap_set_fd(fd, self.capabilities)
+        };
+        rc == 0
+    }
+
+    pub fn apply_to_file(&self, path: &str) -> bool {
+        let file = ffi::CString::new(path).unwrap();
+        let rc = unsafe {
+            cap_set_file(file.as_ptr(), self.capabilities)
         };
         rc == 0
     }
 
 }
 
-impl Drop for CapabilitySet {
+impl Drop for Capabilities {
     fn drop(&mut self) {
         unsafe {
-            if ! self.capability_set.is_null(){
-                cap_free(self.capability_set);
+            if ! self.capabilities.is_null(){
+                cap_free(self.capabilities);
             }
         };
     }
 }
 
-impl Clone for CapabilitySet {
-    fn clone(&self) -> CapabilitySet {
-        let other = unsafe { cap_dup(self.capability_set) };
-        CapabilitySet{ capability_set: other }
+impl Clone for Capabilities {
+    fn clone(&self) -> Capabilities {
+        let other = unsafe { cap_dup(self.capabilities) };
+        Capabilities{ capabilities: other }
     }
 }
 
-impl PartialEq for CapabilitySet {
+impl PartialEq for Capabilities {
     fn eq(&self, other: &Self)-> bool {
         unsafe {
-            cap_compare(self.capability_set, other.capability_set) == 0
+            cap_compare(self.capabilities, other.capabilities) == 0
         }
     }
 }
 
-impl Eq for CapabilitySet {}
+impl Eq for Capabilities {}
 
 
-impl FromStr for CapabilitySet {
+impl FromStr for Capabilities {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<CapabilitySet, ()> {
+    fn from_str(s: &str) -> Result<Capabilities, ()> {
         let cstr = ffi::CString::new(s).unwrap();
         let caps = unsafe { cap_from_text(cstr.as_ptr()) };
         if caps.is_null() {
             return Err(());
         }
-        Ok(CapabilitySet{ capability_set: caps })
+        Ok(Capabilities{ capabilities: caps })
     }
 }
 
-impl ToString for CapabilitySet {
+impl ToString for Capabilities {
     fn to_string(&self) -> String {
         let mut sz: ssize_t = 0;
-        let ptr = unsafe { cap_to_text(self.capability_set, &mut sz) };
+        let ptr = unsafe { cap_to_text(self.capabilities, &mut sz) };
         let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
         let data: Vec<u8> = Vec::from(bytes);
         unsafe { cap_free(ptr as *mut c_void) };
