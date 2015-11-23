@@ -297,7 +297,7 @@ pub const CAP_AUDIT_READ: Capability = Capability(37);
 
 const CAP_LAST_CAP: Capability = CAP_AUDIT_READ;
 
-trait Bound {
+pub trait Bound {
     fn bound(&self) -> bool;
     fn drop(&self) -> bool;
 }
@@ -413,11 +413,11 @@ impl Capabilities {
         Some(Capabilities{ capabilities: caps })
     }
 
-    pub fn reset_all(& self){
+    pub fn reset_all(&mut self){
         unsafe { cap_clear(self.capabilities) };
     }
 
-    pub fn reset_flag(&self, flag: Flag){
+    pub fn reset_flag(&mut self, flag: Flag){
         unsafe { cap_clear_flag(self.capabilities, flag as u32) };
     }
 
@@ -431,7 +431,7 @@ impl Capabilities {
         rc == 0 && set == 1
     }
 
-    pub fn update(&self, caps: &[&Capability], flag: Flag, set: bool) -> bool {
+    pub fn update(&mut self, caps: &[&Capability], flag: Flag, set: bool) -> bool {
         let val = match set { true => 1, false => 0 };
         let raw: Vec<cap_value_t> = caps.iter().map(|&x| x.into()).collect();
         let rc = unsafe {
