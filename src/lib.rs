@@ -316,18 +316,6 @@ impl Bound for Capability {
     }
 }
 
-trait Valid {
-    fn is_valid(&self) -> bool;
-}
-
-impl Valid for Capability {
-    fn is_valid(&self) -> bool {
-        let value: cap_value_t = self.into();
-        let max: cap_value_t = (&CAP_LAST_CAP).into();
-        value <= max
-    }
-}
-
 impl<'a> From<&'a Capability> for cap_value_t {
     fn from(c: &'a Capability) -> cap_value_t {
         let &Capability(x) = c;
@@ -354,7 +342,8 @@ impl FromStr for Capability {
 impl ToString for Capability {
     fn to_string(&self) -> String {
         let value: cap_value_t = self.into();
-        if ! self.is_valid(){
+        let max: cap_value_t = (&CAP_LAST_CAP).into();
+        if value > max {
             panic!("Invalid capability value: {}", value);
         }
         let ptr = unsafe { cap_to_name(value) };
@@ -374,7 +363,6 @@ pub enum Flag {
 pub struct Capabilities {
     capabilities: cap_t
 }
-
 
 impl Capabilities {
 
@@ -502,7 +490,6 @@ impl PartialEq for Capabilities {
 }
 
 impl Eq for Capabilities {}
-
 
 impl FromStr for Capabilities {
     type Err = ();
