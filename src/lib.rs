@@ -1,8 +1,9 @@
 extern crate libc;
 
-use std::ffi;
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
+use std::ffi;
 use std::fs;
+use std::io;
 use std::convert::{Into, From};
 use std::str::FromStr;
 use std::string::ToString;
@@ -426,7 +427,10 @@ impl Capabilities {
         let capability: cap_value_t = cap.into();
         let flag_value: cap_flag_t = flag as cap_flag_t;
         let rc = unsafe {
-            cap_get_flag(self.capabilities, capability, flag_value, &mut set)
+            cap_get_flag(self.capabilities,
+                         capability,
+                         flag_value,
+                         &mut set)
         };
         rc == 0 && set == 1
     }
@@ -434,32 +438,35 @@ impl Capabilities {
     pub fn update(&mut self, caps: &[&Capability], flag: Flag, set: bool) -> bool {
         let val = match set { true => 1, false => 0 };
         let raw: Vec<cap_value_t> = caps.iter().map(|&x| x.into()).collect();
-        let rc = unsafe {
-            cap_set_flag(self.capabilities, flag as cap_flag_t, raw.len() as i32, raw.as_ptr(), val)
-        };
-        rc == 0
+        0 == unsafe {
+            cap_set_flag(self.capabilities,
+                         flag as cap_flag_t,
+                         raw.len() as i32,
+                         raw.as_ptr(),
+                         val)
+        }
     }
 
-    pub fn apply(&self) -> bool {
-        let rc = unsafe {
-            cap_set_proc(self.capabilities)
-        };
-        rc == 0
+    pub fn apply(&self) -> Result<(), io::Error> {
+        if unsafe { cap_set_proc(self.capabilities) } == 0 {
+            return Ok(());
+        }
+        Err(io::Error::last_os_error())
     }
 
-    pub fn apply_to_fd(&self, fd: i32) -> bool {
-        let rc = unsafe {
-            cap_set_fd(fd, self.capabilities)
-        };
-        rc == 0
+    pub fn apply_to_fd(&self, fd: i32) -> Result<(), io::Error> {
+        if  unsafe { cap_set_fd(fd, self.capabilities) } == 0 {
+            return Ok(());
+        }
+        Err(io::Error::last_os_error())
     }
 
-    pub fn apply_to_file(&self, path: &str) -> bool {
+    pub fn apply_to_file(&self, path: &str) -> Result<(), io::Error> {
         let file = ffi::CString::new(path).unwrap();
-        let rc = unsafe {
-            cap_set_file(file.as_ptr(), self.capabilities)
-        };
-        rc == 0
+        if unsafe { cap_set_file(file.as_ptr(), self.capabilities) } == 0 {
+            return Ok(());
+        }
+        Err(io::Error::last_os_error())
     }
 
 }

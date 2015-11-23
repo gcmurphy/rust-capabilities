@@ -1,7 +1,5 @@
 extern crate capabilities;
 
-use capabilities::Bound;
-
 fn main(){
 
     let mut capability_set = capabilities::Capabilities::new().unwrap();
@@ -19,11 +17,13 @@ fn main(){
 
     println!("Working set - {}", capability_set.to_string());
 
-    if capability_set.apply() {
-        let applied = capabilities::Capabilities::from_current_proc().unwrap();
-        println!("Applied - {}", applied.to_string());
-    } else {
-        println!("Cannot apply! CAP_SETPCAP = {}", capabilities::CAP_SETPCAP.bound());
+    match capability_set.apply() {
+        Ok(_) => {
+            let current = capabilities::Capabilities::from_current_proc().unwrap();
+            println!("Current - {}", current.to_string());
+        },
+        Err(e) => {
+            println!("Unable to apply capabilities - {}", e.to_string());
+        }
     }
 }
-
