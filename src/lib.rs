@@ -27,8 +27,8 @@ extern "C" {
 
     /* libcap/cap_alloc.c */
     fn cap_init() -> cap_t;
-	fn cap_free(ptr: *mut c_void) -> c_int;
-	fn cap_dup(cap: cap_t) -> cap_t;
+    fn cap_free(ptr: *mut c_void) -> c_int;
+    fn cap_dup(cap: cap_t) -> cap_t;
 
     /* libcap/cap_flag.c */
     fn cap_get_flag(c: cap_t, vt: cap_value_t,
