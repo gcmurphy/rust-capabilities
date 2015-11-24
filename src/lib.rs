@@ -521,3 +521,31 @@ impl ToString for Capabilities {
         String::from_utf8(data).unwrap()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_tostring() {
+        let mut c = Capabilities::new().unwrap();
+        c.reset_all();
+        c.update(&[&CAP_CHOWN], Flag::Permitted, true);
+        assert!(c.to_string() == String::from("= cap_chown+p"));
+
+        c.update(&[&CAP_SETUID], Flag::Effective, true);
+        assert!(c.to_string() == String::from("= cap_chown+p cap_setuid+e"));
+    }
+
+    #[test]
+    fn test_fromstr() {
+        let mut a = Capabilities::new().unwrap();
+        a.reset_all();
+        a.update(&[&CAP_SYS_ADMIN], Flag::Permitted, true);
+
+        let b = a.to_string().parse::<Capabilities>().unwrap();
+        assert!(a == b);
+        assert!(a.check(&CAP_SYS_ADMIN, Flag::Permitted));
+        assert!(b.check(&CAP_SYS_ADMIN, Flag::Permitted));
+    }
+}
