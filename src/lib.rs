@@ -299,26 +299,33 @@ pub const CAP_AUDIT_READ: Capability = Capability(37);
 const CAP_LAST_CAP: Capability = CAP_AUDIT_READ;
 
 pub trait Bound {
-    fn bound(&self) -> bool;
-    fn drop(&self) -> bool;
+    fn is_bound(&self) -> bool;
+    fn drop_bound(&self) -> bool;
 }
 
 impl Bound for Capability {
-    fn bound(&self) -> bool {
+    fn is_bound(&self) -> bool {
         let val: cap_value_t = self.into();
         let rc = unsafe { cap_get_bound(val) };
         rc == 0
     }
 
-    fn drop(&self) -> bool {
+    fn drop_bound(&self) -> bool {
         let val: cap_value_t = self.into();
         let rc = unsafe { cap_drop_bound(val) };
         rc == 0
     }
 }
 
+impl From<Capability> for cap_value_t {
+    fn from(c: Capability) -> cap_value_t {
+        let Capability(x) = c;
+        return x;
+    }
+}
+
 impl<'a> From<&'a Capability> for cap_value_t {
-    fn from(c: &'a Capability) -> cap_value_t {
+    fn from(c: &Capability) -> cap_value_t {
         let &Capability(x) = c;
         return x;
     }
@@ -342,8 +349,9 @@ impl FromStr for Capability {
 
 impl ToString for Capability {
     fn to_string(&self) -> String {
+
         let value: cap_value_t = self.into();
-        let max: cap_value_t = (&CAP_LAST_CAP).into();
+        let max: cap_value_t = CAP_LAST_CAP.into();
         if value > max {
             panic!("Invalid capability value: {}", value);
         }
@@ -422,7 +430,7 @@ impl Capabilities {
         unsafe { cap_clear_flag(self.capabilities, flag as u32) };
     }
 
-    pub fn check(&self, cap: &Capability, flag: Flag) -> bool {
+    pub fn check(&self, cap: Capability, flag: Flag) -> bool {
         let mut set: cap_flag_value_t = 0;
         let capability: cap_value_t = cap.into();
         let flag_value: cap_flag_t = flag as cap_flag_t;
@@ -435,9 +443,9 @@ impl Capabilities {
         rc == 0 && set == 1
     }
 
-    pub fn update(&mut self, caps: &[&Capability], flag: Flag, set: bool) -> bool {
+    pub fn update(&mut self, caps: &[Capability], flag: Flag, set: bool) -> bool {
         let val = match set { true => 1, false => 0 };
-        let raw: Vec<cap_value_t> = caps.iter().map(|&x| x.into()).collect();
+        let raw: Vec<cap_value_t> = caps.iter().map(|x| x.into()).collect();
         0 == unsafe {
             cap_set_flag(self.capabilities,
                          flag as cap_flag_t,
@@ -530,10 +538,10 @@ mod test {
     fn test_tostring() {
         let mut c = Capabilities::new().unwrap();
         c.reset_all();
-        c.update(&[&CAP_CHOWN], Flag::Permitted, true);
+        c.update(&[CAP_CHOWN], Flag::Permitted, true);
         assert!(c.to_string() == String::from("= cap_chown+p"));
 
-        c.update(&[&CAP_SETUID], Flag::Effective, true);
+        c.update(&[CAP_SETUID], Flag::Effective, true);
         assert!(c.to_string() == String::from("= cap_chown+p cap_setuid+e"));
     }
 
@@ -541,11 +549,11 @@ mod test {
     fn test_fromstr() {
         let mut a = Capabilities::new().unwrap();
         a.reset_all();
-        a.update(&[&CAP_SYS_ADMIN], Flag::Permitted, true);
+        a.update(&[CAP_SYS_ADMIN], Flag::Permitted, true);
 
         let b = a.to_string().parse::<Capabilities>().unwrap();
         assert!(a == b);
-        assert!(a.check(&CAP_SYS_ADMIN, Flag::Permitted));
-        assert!(b.check(&CAP_SYS_ADMIN, Flag::Permitted));
+        assert!(a.check(CAP_SYS_ADMIN, Flag::Permitted));
+        assert!(b.check(CAP_SYS_ADMIN, Flag::Permitted));
     }
 }
