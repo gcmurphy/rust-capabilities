@@ -15,12 +15,12 @@ fn main(){
     capability_set.update(&[capabilities::CAP_SYS_TIME],
                           capabilities::Flag::Permitted, true);
 
-    println!("Working set - {}", capability_set.to_string());
+    println!("Working set - {}", capability_set);
 
     match capability_set.apply() {
         Ok(_) => {
             let current = capabilities::Capabilities::from_current_proc().unwrap();
-            println!("Current - {}", current.to_string());
+            println!("Current - {}", current);
         },
         Err(e) => {
             println!("Unable to apply capabilities - {}", e.to_string());

@@ -4,9 +4,9 @@ use libc::{c_void, c_int, c_char, pid_t, ssize_t};
 use std::ffi;
 use std::fs;
 use std::io;
+use std::fmt;
 use std::convert::{Into, From};
 use std::str::FromStr;
-use std::string::ToString;
 
 // libcapi c-api
 
@@ -296,8 +296,6 @@ pub const CAP_BLOCK_SUSPEND: Capability = Capability(36);
 /// Allow reading the audit log via multicast netlink socket
 pub const CAP_AUDIT_READ: Capability = Capability(37);
 
-const CAP_LAST_CAP: Capability = CAP_AUDIT_READ;
-
 pub trait Bound {
     fn is_bound(&self) -> bool;
     fn drop_bound(&self) -> bool;
@@ -347,19 +345,16 @@ impl FromStr for Capability {
     }
 }
 
-impl ToString for Capability {
-    fn to_string(&self) -> String {
+impl fmt::Display for Capability {
 
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let value: cap_value_t = self.into();
-        let max: cap_value_t = CAP_LAST_CAP.into();
-        if value > max {
-            panic!("Invalid capability value: {}", value);
-        }
         let ptr = unsafe { cap_to_name(value) };
         let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
         let data: Vec<u8> = Vec::from(bytes);
         unsafe { cap_free(ptr as *mut c_void) };
-        String::from_utf8(data).unwrap()
+        let output = String::from_utf8(data).unwrap();
+        write!(f, "{}", output)
     }
 }
 
@@ -519,14 +514,15 @@ impl FromStr for Capabilities {
     }
 }
 
-impl ToString for Capabilities {
-    fn to_string(&self) -> String {
+impl fmt::Display for Capabilities {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut sz: ssize_t = 0;
         let ptr = unsafe { cap_to_text(self.capabilities, &mut sz) };
         let bytes = unsafe { ffi::CStr::from_ptr(ptr).to_bytes() };
         let data: Vec<u8> = Vec::from(bytes);
         unsafe { cap_free(ptr as *mut c_void) };
-        String::from_utf8(data).unwrap()
+        let output = String::from_utf8(data).unwrap();
+        write!(f, "{}", output)
     }
 }
 
