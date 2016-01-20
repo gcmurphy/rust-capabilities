@@ -1,4 +1,4 @@
-## rust-capabilities [![Build Status](https://travis-ci.org/gcmurphy/rust-capabilities.svg)](https://travis-ci.org/gcmurphy/rust-capabilities)
+## rust-capabilities [![Build Status](https://travis-ci.org/gcmurphy/rust-capabilities.svg)](https://travis-ci.org/gcmurphy/rust-capabilities) [![](http://meritbadge.herokuapp.com/capabilities)](https://crates.io/crates/capabilities)
 ---
 
 ### About
