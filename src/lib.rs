@@ -300,8 +300,16 @@ pub const CAP_BLOCK_SUSPEND: Capability = Capability(36);
 /// Allow reading the audit log via multicast netlink socket
 pub const CAP_AUDIT_READ: Capability = Capability(37);
 
+/// The bound trait checks if the capability is
+/// set for the current process.
 pub trait Bound {
+
+    /// Returns true if the Capability has been applied
+    /// to the current process via a call to cap_get_bound.
     fn is_bound(&self) -> bool;
+
+    /// Drops the capability for the current process
+    /// via a call to cap_drop_bound.
     fn drop_bound(&self) -> bool;
 }
 
@@ -359,17 +367,48 @@ impl fmt::Display for Capability {
     }
 }
 
+/// A process has three sets of bitmaps called the inheritable(I),
+/// permitted(P), and effective(E) capabilities.  Each capability is
+/// implemented as a bit in each of these bitmaps which is either set or
+/// unset.
+///
+/// Refer to the [Linux kernel capabilities
+/// FAQ](ftp://www.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.2/capfaq-0.2.txt) for
+/// more details.
 pub enum Flag {
+    /// When a process tries to do a privileged operation, the
+    /// operating system will check the appropriate bit in the effective set
+    /// of the process (instead of checking whether the effective uid of the
+    /// process (as is normally done).  For example, when a process tries
+    /// to set the clock, the Linux kernel will check that the process has the
+    /// CAP_SYS_TIME bit (which is currently bit 25) set in its effective set.
     Effective = 0,
+
+    /// The permitted set of the process indicates the capabilities the
+    /// process can use.  The process can have capabilities set in the
+    /// permitted set that are not in the effective set.  This indicates that
+    /// the process has temporarily disabled this capability.  A process is
+    /// allowed to set a bit in its effective set only if it is available in
+    /// the permitted set.  The distinction between effective and permitted
+    /// exists so that processes can "bracket" operations that need privilege.
     Permitted = 1,
+
+    /// The inheritable capabilities are the capabilities of the current
+    /// process that should be inherited by a program executed by the current
+    /// process.  The permitted set of a process is masked against the
+    /// inheritable set during exec().  Nothing special happens during fork()
+    /// or clone().  Child processes and threads are given an exact copy of
+    /// the capabilities of the parent process.
     Inheritable = 2,
 }
 
+/// A capability set that can be manipulated.
 pub struct Capabilities {
     capabilities: cap_t,
 }
 
 impl Capabilities {
+    /// Create a new empty capability set
     pub fn new() -> Option<Capabilities> {
         let caps = unsafe { cap_init() };
         if caps.is_null() {
@@ -378,6 +417,7 @@ impl Capabilities {
         Some(Capabilities { capabilities: caps })
     }
 
+    /// Create a capability set from the specified file descriptor
     pub fn from_fd(fd: isize) -> Option<Capabilities> {
         let caps = unsafe { cap_get_fd(fd as c_int) };
         if caps.is_null() {
@@ -386,6 +426,7 @@ impl Capabilities {
         Some(Capabilities { capabilities: caps })
     }
 
+    /// Create a capability set base on the supplied file path
     pub fn from_file(path: &str) -> Option<Capabilities> {
         let file = fs::metadata(path);
         if file.is_err() {
@@ -401,6 +442,7 @@ impl Capabilities {
         Some(Capabilities { capabilities: caps })
     }
 
+    /// Create a capability set from the supplied process ID.
     pub fn from_pid(pid: isize) -> Option<Capabilities> {
         let caps = unsafe { cap_get_pid(pid as pid_t) };
         if caps.is_null() {
@@ -409,6 +451,8 @@ impl Capabilities {
         Some(Capabilities { capabilities: caps })
     }
 
+    /// Create a capability set based on the current processes
+    /// capabilities.
     pub fn from_current_proc() -> Option<Capabilities> {
         let caps = unsafe { cap_get_proc() };
         if caps.is_null() {
@@ -417,14 +461,18 @@ impl Capabilities {
         Some(Capabilities { capabilities: caps })
     }
 
+    /// Clear all the entries in the capability set.
     pub fn reset_all(&mut self) {
         unsafe { cap_clear(self.capabilities) };
     }
 
+    /// Clear all instances of the supplied flag.
     pub fn reset_flag(&mut self, flag: Flag) {
         unsafe { cap_clear_flag(self.capabilities, flag as u32) };
     }
 
+    /// Check if the supplied capability has the flag
+    /// set in this capability set.
     pub fn check(&self, cap: Capability, flag: Flag) -> bool {
         let mut set: cap_flag_value_t = 0;
         let capability: cap_value_t = cap.into();
@@ -433,6 +481,10 @@ impl Capabilities {
         rc == 0 && set == 1
     }
 
+
+    /// Update the capability set adding the supplied capabilities.
+    /// Each of the supplied capabilities will have the flag set
+    /// or cleared depending on the value supplied for set.
     pub fn update(&mut self, caps: &[Capability], flag: Flag, set: bool) -> bool {
         let val = match set {
             true => 1,
@@ -449,6 +501,8 @@ impl Capabilities {
         }
     }
 
+    /// Attempt to apply the capability set to the current
+    /// process.
     pub fn apply(&self) -> Result<(), io::Error> {
         if unsafe { cap_set_proc(self.capabilities) } == 0 {
             return Ok(());
@@ -456,6 +510,9 @@ impl Capabilities {
         Err(io::Error::last_os_error())
     }
 
+
+    /// Attempt to apply the capability set to the supplied
+    /// file descriptor.
     pub fn apply_to_fd(&self, fd: i32) -> Result<(), io::Error> {
         if unsafe { cap_set_fd(fd, self.capabilities) } == 0 {
             return Ok(());
@@ -463,6 +520,8 @@ impl Capabilities {
         Err(io::Error::last_os_error())
     }
 
+    /// Attempt to apply the capability set to the supplied
+    /// file.
     pub fn apply_to_file(&self, path: &str) -> Result<(), io::Error> {
         let file = ffi::CString::new(path).unwrap();
         if unsafe { cap_set_file(file.as_ptr(), self.capabilities) } == 0 {
