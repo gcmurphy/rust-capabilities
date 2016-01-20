@@ -25,38 +25,42 @@ type cap_flag_value_t = i32;
 #[link(name="cap")]
 extern "C" {
 
-    /* libcap/cap_alloc.c */
+    // libcap/cap_alloc.c
     fn cap_init() -> cap_t;
     fn cap_free(ptr: *mut c_void) -> c_int;
     fn cap_dup(cap: cap_t) -> cap_t;
 
-    /* libcap/cap_flag.c */
-    fn cap_get_flag(c: cap_t, vt: cap_value_t,
+    // libcap/cap_flag.c
+    fn cap_get_flag(c: cap_t,
+                    vt: cap_value_t,
                     ft: cap_flag_t,
-                    val: *mut cap_flag_value_t) -> c_int;
+                    val: *mut cap_flag_value_t)
+                    -> c_int;
 
-    fn cap_set_flag(c: cap_t, f: cap_flag_t,
+    fn cap_set_flag(c: cap_t,
+                    f: cap_flag_t,
                     ncap: c_int,
                     caps: *const cap_value_t,
-                    val: cap_flag_value_t) -> c_int;
+                    val: cap_flag_value_t)
+                    -> c_int;
 
     fn cap_clear(c: cap_t) -> c_int;
     fn cap_clear_flag(c: cap_t, flag: cap_flag_t) -> c_int;
 
-    /* libcap/cap_file.c */
+    // libcap/cap_file.c
     fn cap_get_fd(fd: c_int) -> cap_t;
     fn cap_get_file(filename: *const c_char) -> cap_t;
     fn cap_set_fd(fd: c_int, cap: cap_t) -> c_int;
     fn cap_set_file(filename: *const c_char, cap: cap_t) -> c_int;
 
-    /* libcap/cap_proc.c */
+    // libcap/cap_proc.c
     fn cap_get_proc() -> cap_t;
     fn cap_get_pid(pid: pid_t) -> cap_t;
     fn cap_set_proc(cap: cap_t) -> c_int;
     fn cap_get_bound(vt: cap_value_t) -> c_int;
     fn cap_drop_bound(vt: cap_value_t) -> c_int;
 
-    /* libcap/cap_extint.c */
+    // libcap/cap_extint.c
     // Not currently used
     fn _cap_size(cap: cap_t) -> ssize_t;
     fn _cap_copy_ext(ptr: *mut c_void, cap: cap_t, size: ssize_t) -> ssize_t;
@@ -64,7 +68,7 @@ extern "C" {
 
     fn cap_compare(a: cap_t, b: cap_t) -> c_int;
 
-    /* libcap/cap_text.c */
+    // libcap/cap_text.c
     fn cap_from_text(txt: *const c_char) -> cap_t;
     fn cap_to_text(cap: cap_t, size: *mut ssize_t) -> *mut c_char;
     fn cap_from_name(name: *const c_char, val: *mut cap_value_t) -> c_int;
@@ -92,7 +96,7 @@ pub const CAP_DAC_OVERRIDE: Capability = Capability(1);
 /// Overrides all DAC restrictions regarding read and search on files
 /// and directories, including ACL restrictions if [_POSIX_ACL] is
 /// defined. Excluding DAC access covered by CAP_LINUX_IMMUTABLE.
-pub const CAP_DAC_READ_SEARCH: Capability =  Capability(2);
+pub const CAP_DAC_READ_SEARCH: Capability = Capability(2);
 
 /// Overrides all restrictions about allowed operations on files, where
 /// file owner ID must be equal to the user ID, except where CAP_FSETID
@@ -335,9 +339,7 @@ impl FromStr for Capability {
     fn from_str(s: &str) -> Result<Capability, ()> {
         let mut val: cap_value_t = 0;
         let name = ffi::CString::new(s).unwrap();
-        let rc = unsafe {
-            cap_from_name(name.as_ptr(), &mut val)
-        };
+        let rc = unsafe { cap_from_name(name.as_ptr(), &mut val) };
         if rc != 0 {
             return Err(());
         }
@@ -346,7 +348,6 @@ impl FromStr for Capability {
 }
 
 impl fmt::Display for Capability {
-
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let value: cap_value_t = self.into();
         let ptr = unsafe { cap_to_name(value) };
@@ -359,69 +360,68 @@ impl fmt::Display for Capability {
 }
 
 pub enum Flag {
-    Effective=0,
-    Permitted=1,
-    Inheritable=2
+    Effective = 0,
+    Permitted = 1,
+    Inheritable = 2,
 }
 
 pub struct Capabilities {
-    capabilities: cap_t
+    capabilities: cap_t,
 }
 
 impl Capabilities {
-
     pub fn new() -> Option<Capabilities> {
         let caps = unsafe { cap_init() };
         if caps.is_null() {
             return None;
         }
-        Some(Capabilities{ capabilities: caps })
+        Some(Capabilities { capabilities: caps })
     }
 
     pub fn from_fd(fd: isize) -> Option<Capabilities> {
         let caps = unsafe { cap_get_fd(fd as c_int) };
-        if caps.is_null(){
+        if caps.is_null() {
             return None;
         }
-        Some(Capabilities{ capabilities: caps })
+        Some(Capabilities { capabilities: caps })
     }
 
     pub fn from_file(path: &str) -> Option<Capabilities> {
         let file = fs::metadata(path);
-        if file.is_err(){
+        if file.is_err() {
             return None;
         }
 
         let cstr = ffi::CString::new(path).unwrap();
         let caps = unsafe { cap_get_file(cstr.as_ptr()) };
-        if caps.is_null(){
+        if caps.is_null() {
             return None;
         }
 
-        Some(Capabilities{ capabilities: caps })
+        Some(Capabilities { capabilities: caps })
     }
 
     pub fn from_pid(pid: isize) -> Option<Capabilities> {
         let caps = unsafe { cap_get_pid(pid as pid_t) };
-        if caps.is_null(){
+        if caps.is_null() {
             return None;
         }
-        Some(Capabilities{ capabilities: caps })
+        Some(Capabilities { capabilities: caps })
     }
 
     pub fn from_current_proc() -> Option<Capabilities> {
         let caps = unsafe { cap_get_proc() };
-        if caps.is_null(){
+        if caps.is_null() {
             return None;
         }
-        Some(Capabilities{ capabilities: caps })
+        Some(Capabilities { capabilities: caps })
     }
 
-    pub fn reset_all(&mut self){
+    pub fn reset_all(&mut self) {
         unsafe { cap_clear(self.capabilities) };
     }
 
-    pub fn reset_flag(&mut self, flag: Flag){
+    pub fn reset_flag(&mut self, flag: Flag) {
         unsafe { cap_clear_flag(self.capabilities, flag as u32) };
     }
 
@@ -429,19 +429,18 @@ impl Capabilities {
         let mut set: cap_flag_value_t = 0;
         let capability: cap_value_t = cap.into();
         let flag_value: cap_flag_t = flag as cap_flag_t;
-        let rc = unsafe {
-            cap_get_flag(self.capabilities,
-                         capability,
-                         flag_value,
-                         &mut set)
-        };
+        let rc = unsafe { cap_get_flag(self.capabilities, capability, flag_value, &mut set) };
         rc == 0 && set == 1
     }
 
     pub fn update(&mut self, caps: &[Capability], flag: Flag, set: bool) -> bool {
-        let val = match set { true => 1, false => 0 };
+        let val = match set {
+            true => 1,
+            false => 0,
+        };
         let raw: Vec<cap_value_t> = caps.iter().map(|x| x.into()).collect();
-        0 == unsafe {
+        0 ==
+        unsafe {
             cap_set_flag(self.capabilities,
                          flag as cap_flag_t,
                          raw.len() as i32,
@@ -458,7 +457,7 @@ impl Capabilities {
     }
 
     pub fn apply_to_fd(&self, fd: i32) -> Result<(), io::Error> {
-        if  unsafe { cap_set_fd(fd, self.capabilities) } == 0 {
+        if unsafe { cap_set_fd(fd, self.capabilities) } == 0 {
             return Ok(());
         }
         Err(io::Error::last_os_error())
@@ -471,13 +470,12 @@ impl Capabilities {
         }
         Err(io::Error::last_os_error())
     }
-
 }
 
 impl Drop for Capabilities {
     fn drop(&mut self) {
         unsafe {
-            if ! self.capabilities.is_null(){
+            if !self.capabilities.is_null() {
                 cap_free(self.capabilities);
             }
         };
@@ -487,15 +485,13 @@ impl Drop for Capabilities {
 impl Clone for Capabilities {
     fn clone(&self) -> Capabilities {
         let other = unsafe { cap_dup(self.capabilities) };
-        Capabilities{ capabilities: other }
+        Capabilities { capabilities: other }
     }
 }
 
 impl PartialEq for Capabilities {
-    fn eq(&self, other: &Self)-> bool {
-        unsafe {
-            cap_compare(self.capabilities, other.capabilities) == 0
-        }
+    fn eq(&self, other: &Self) -> bool {
+        unsafe { cap_compare(self.capabilities, other.capabilities) == 0 }
     }
 }
 
@@ -510,7 +506,7 @@ impl FromStr for Capabilities {
         if caps.is_null() {
             return Err(());
         }
-        Ok(Capabilities{ capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 }
 
