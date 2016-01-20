@@ -1,6 +1,8 @@
-extern crate libc;
+#[cfg(target_os="linux")]
 
+extern crate libc;
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
+
 use std::ffi;
 use std::fs;
 use std::io;
