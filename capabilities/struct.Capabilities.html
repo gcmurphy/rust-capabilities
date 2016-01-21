@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-164' class='srclink' href='../src/capabilities/lib.rs.html#408-410' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-169' class='srclink' href='../src/capabilities/lib.rs.html#457-459' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Capabilities {
     // some fields omitted
 }</pre><div class='docblock'><p>A capability set that can be manipulated.</p>
@@ -64,10 +64,10 @@ capabilities.</p>
 <div class='docblock'><p>Clear all the entries in the capability set.</p>
 </div><h4 id='method.reset_flag' class='method'><code>fn <a href='#method.reset_flag' class='fnname'>reset_flag</a>(&amp;mut self, flag: <a class='enum' href='../capabilities/enum.Flag.html' title='capabilities::Flag'>Flag</a>)</code></h4>
 <div class='docblock'><p>Clear all instances of the supplied flag.</p>
-</div><h4 id='method.check' class='method'><code>fn <a href='#method.check' class='fnname'>check</a>(&amp;self, cap: <a class='struct' href='../capabilities/struct.Capability.html' title='capabilities::Capability'>Capability</a>, flag: <a class='enum' href='../capabilities/enum.Flag.html' title='capabilities::Flag'>Flag</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.check' class='method'><code>fn <a href='#method.check' class='fnname'>check</a>(&amp;self, cap: <a class='enum' href='../capabilities/enum.Capability.html' title='capabilities::Capability'>Capability</a>, flag: <a class='enum' href='../capabilities/enum.Flag.html' title='capabilities::Flag'>Flag</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Check if the supplied capability has the flag
 set in this capability set.</p>
-</div><h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self, caps: <a href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../capabilities/struct.Capability.html' title='capabilities::Capability'>Capability</a><a href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, flag: <a class='enum' href='../capabilities/enum.Flag.html' title='capabilities::Flag'>Flag</a>, set: <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self, caps: <a href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../capabilities/enum.Capability.html' title='capabilities::Capability'>Capability</a><a href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, flag: <a class='enum' href='../capabilities/enum.Flag.html' title='capabilities::Flag'>Flag</a>, set: <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Update the capability set adding the supplied capabilities.
 Each of the supplied capabilities will have the flag set
 or cleared depending on the value supplied for set.</p>

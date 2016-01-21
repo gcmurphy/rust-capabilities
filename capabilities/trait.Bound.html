@@ -45,23 +45,23 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-119' class='srclink' href='../src/capabilities/lib.rs.html#307-316' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-122' class='srclink' href='../src/capabilities/lib.rs.html#311-320' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Bound {
-    fn <a href='#tymethod.is_bound' class='fnname'>is_bound</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
-    fn <a href='#tymethod.drop_bound' class='fnname'>drop_bound</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.is_bound' class='fnname'>is_bound</a>(self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.drop_bound' class='fnname'>drop_bound</a>(self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
 }</pre><div class='docblock'><p>The bound trait checks if the capability is
 set for the current process.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.is_bound' class='method stab '><code>fn <a href='#tymethod.is_bound' class='fnname'>is_bound</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the Capability has been applied
+        <h3 id='tymethod.is_bound' class='method stab '><code>fn <a href='#tymethod.is_bound' class='fnname'>is_bound</a>(self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the Capability has been applied
 to the current process via a call to cap_get_bound.</p>
-</div><h3 id='tymethod.drop_bound' class='method stab '><code>fn <a href='#tymethod.drop_bound' class='fnname'>drop_bound</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Drops the capability for the current process
+</div><h3 id='tymethod.drop_bound' class='method stab '><code>fn <a href='#tymethod.drop_bound' class='fnname'>drop_bound</a>(self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Drops the capability for the current process
 via a call to cap_drop_bound.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../capabilities/trait.Bound.html' title='capabilities::Bound'>Bound</a> for <a class='struct' href='../capabilities/struct.Capability.html' title='capabilities::Capability'>Capability</a></code></li>
+    <li><code>impl <a class='trait' href='../capabilities/trait.Bound.html' title='capabilities::Bound'>Bound</a> for <a class='enum' href='../capabilities/enum.Capability.html' title='capabilities::Capability'>Capability</a></code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/capabilities/trait.Bound.js">
                       </script></section>

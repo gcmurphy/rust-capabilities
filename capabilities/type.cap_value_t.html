@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `CAP_FSETID` constant in crate `capabilities`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, CAP_FSETID">
+    <meta name="description" content="API documentation for the Rust `cap_value_t` type in crate `capabilities`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, cap_value_t">
 
-    <title>capabilities::CAP_FSETID - Rust</title>
+    <title>capabilities::cap_value_t - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../main.css">
 
@@ -26,7 +26,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>capabilities</a></p><script>window.sidebarCurrent = {name: 'CAP_FSETID', ty: 'constant', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='index.html'>capabilities</a></p><script>window.sidebarCurrent = {name: 'cap_value_t', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -40,19 +40,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content constant">
-<h1 class='fqn'><span class='in-band'><a href='index.html'>capabilities</a>::<wbr><a class='constant' href=''>CAP_FSETID</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content type">
+<h1 class='fqn'><span class='in-band'><a href='index.html'>capabilities</a>::<wbr><a class='type' href=''>cap_value_t</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-85' class='srclink' href='../src/capabilities/lib.rs.html#114' title='goto source code'>[src]</a></span></h1>
-<pre class='rust const'>pub const CAP_FSETID: <a class='struct' href='../capabilities/struct.Capability.html' title='capabilities::Capability'>Capability</a><code> = </code><code>Capability(4)</code></pre><div class='docblock'><p>Overrides the following restrictions that the effective user ID
-shall match the file owner ID when setting the S_ISUID and S_ISGID
-bits on that file; that the effective group ID (or one of the
-supplementary group IDs) shall match the file owner ID when setting
-the S_ISGID bit on that file; that the S_ISUID and S_ISGID bits are
-cleared on successful return from chown(2) (not implemented).</p>
-</div></section>
+        </span><a id='src-13' class='srclink' href='../src/capabilities/lib.rs.html#19' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type cap_value_t = <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>;</pre></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>

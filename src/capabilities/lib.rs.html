@@ -652,6 +652,55 @@
 <span id="610">610</span>
 <span id="611">611</span>
 <span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
 </pre><pre class='rust '>
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>target_os</span><span class='op'>=</span><span class='string'>&quot;linux&quot;</span>)]</span>
 
@@ -671,7 +720,7 @@
 <span class='kw'>type</span> <span class='ident'>cap_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>;
 
 <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
-<span class='kw'>type</span> <span class='ident'>cap_value_t</span> <span class='op'>=</span> <span class='ident'>u32</span>;
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>cap_value_t</span> <span class='op'>=</span> <span class='ident'>u32</span>;
 
 <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
 <span class='kw'>type</span> <span class='ident'>cap_flag_t</span> <span class='op'>=</span> <span class='ident'>u32</span>;
@@ -735,227 +784,231 @@
 
 <span class='comment'>// rust interface</span>
 
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Capability</span>(<span class='ident'>cap_value_t</span>);
+<span class='doccomment'>/// Capability descriptions taken from:</span>
+<span class='doccomment'>/// https://github.com/torvalds/linux/blob/master/include/uapi/linux/capability.h</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Capability</span> {
+    <span class='doccomment'>/// In a system with the [_POSIX_CHOWN_RESTRICTED] option defined, this</span>
+    <span class='doccomment'>/// overrides the restriction of changing file ownership and group</span>
+    <span class='doccomment'>/// ownership.</span>
+    <span class='ident'>CAP_CHOWN</span> <span class='op'>=</span> <span class='number'>0</span>,
 
-<span class='comment'>// Capability descriptions taken from:</span>
-<span class='comment'>//  https://github.com/torvalds/linux/blob/master/include/uapi/linux/capability.h</span>
+    <span class='doccomment'>/// Override all DAC access, including ACL execute access if</span>
+    <span class='doccomment'>/// [_POSIX_ACL] is defined. Excluding DAC access covered by</span>
+    <span class='doccomment'>/// CAP_LINUX_IMMUTABLE.</span>
+    <span class='ident'>CAP_DAC_OVERRIDE</span> <span class='op'>=</span> <span class='number'>1</span>,
 
-<span class='doccomment'>/// In a system with the [_POSIX_CHOWN_RESTRICTED] option defined, this</span>
-<span class='doccomment'>/// overrides the restriction of changing file ownership and group</span>
-<span class='doccomment'>/// ownership.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_CHOWN</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>0</span>);
+    <span class='doccomment'>/// Overrides all DAC restrictions regarding read and search on files</span>
+    <span class='doccomment'>/// and directories, including ACL restrictions if [_POSIX_ACL] is</span>
+    <span class='doccomment'>/// defined. Excluding DAC access covered by CAP_LINUX_IMMUTABLE.</span>
+    <span class='ident'>CAP_DAC_READ_SEARCH</span> <span class='op'>=</span> <span class='number'>2</span>,
 
-<span class='doccomment'>/// Override all DAC access, including ACL execute access if</span>
-<span class='doccomment'>/// [_POSIX_ACL] is defined. Excluding DAC access covered by</span>
-<span class='doccomment'>/// CAP_LINUX_IMMUTABLE.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_DAC_OVERRIDE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>1</span>);
+    <span class='doccomment'>/// Overrides all restrictions about allowed operations on files, where</span>
+    <span class='doccomment'>/// file owner ID must be equal to the user ID, except where CAP_FSETID</span>
+    <span class='doccomment'>/// is applicable. It doesn&#39;t override MAC and DAC restrictions.</span>
+    <span class='ident'>CAP_FOWNER</span> <span class='op'>=</span> <span class='number'>3</span>,
 
-<span class='doccomment'>/// Overrides all DAC restrictions regarding read and search on files</span>
-<span class='doccomment'>/// and directories, including ACL restrictions if [_POSIX_ACL] is</span>
-<span class='doccomment'>/// defined. Excluding DAC access covered by CAP_LINUX_IMMUTABLE.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_DAC_READ_SEARCH</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>2</span>);
+    <span class='doccomment'>/// Overrides the following restrictions that the effective user ID</span>
+    <span class='doccomment'>/// shall match the file owner ID when setting the S_ISUID and S_ISGID</span>
+    <span class='doccomment'>/// bits on that file; that the effective group ID (or one of the</span>
+    <span class='doccomment'>/// supplementary group IDs) shall match the file owner ID when setting</span>
+    <span class='doccomment'>/// the S_ISGID bit on that file; that the S_ISUID and S_ISGID bits are</span>
+    <span class='doccomment'>/// cleared on successful return from chown(2) (not implemented).</span>
+    <span class='ident'>CAP_FSETID</span> <span class='op'>=</span> <span class='number'>4</span>,
 
-<span class='doccomment'>/// Overrides all restrictions about allowed operations on files, where</span>
-<span class='doccomment'>/// file owner ID must be equal to the user ID, except where CAP_FSETID</span>
-<span class='doccomment'>/// is applicable. It doesn&#39;t override MAC and DAC restrictions.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_FOWNER</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>3</span>);
+    <span class='doccomment'>/// Overrides the restriction that the real or effective user ID of a</span>
+    <span class='doccomment'>/// process sending a signal must match the real or effective user ID</span>
+    <span class='doccomment'>/// of the process receiving the signal.</span>
+    <span class='ident'>CAP_KILL</span> <span class='op'>=</span> <span class='number'>5</span>,
 
-<span class='doccomment'>/// Overrides the following restrictions that the effective user ID</span>
-<span class='doccomment'>/// shall match the file owner ID when setting the S_ISUID and S_ISGID</span>
-<span class='doccomment'>/// bits on that file; that the effective group ID (or one of the</span>
-<span class='doccomment'>/// supplementary group IDs) shall match the file owner ID when setting</span>
-<span class='doccomment'>/// the S_ISGID bit on that file; that the S_ISUID and S_ISGID bits are</span>
-<span class='doccomment'>/// cleared on successful return from chown(2) (not implemented).</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_FSETID</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>4</span>);
+    <span class='doccomment'>/// - Allows setgid(2) manipulation</span>
+    <span class='doccomment'>/// - Allows setgroups(2) manipulation</span>
+    <span class='doccomment'>/// - Allows forged gids on socket credentials passing.</span>
+    <span class='ident'>CAP_SETGID</span> <span class='op'>=</span> <span class='number'>6</span>,
 
-<span class='doccomment'>/// Overrides the restriction that the real or effective user ID of a</span>
-<span class='doccomment'>/// process sending a signal must match the real or effective user ID</span>
-<span class='doccomment'>/// of the process receiving the signal.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_KILL</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>5</span>);
+    <span class='doccomment'>/// - Allows set*uid(2) manipulation (including fsuid).</span>
+    <span class='doccomment'>/// - Allows forged pids on socket credentials passing.</span>
+    <span class='ident'>CAP_SETUID</span> <span class='op'>=</span> <span class='number'>7</span>,
 
-<span class='doccomment'>/// - Allows setgid(2) manipulation</span>
-<span class='doccomment'>/// - Allows setgroups(2) manipulation</span>
-<span class='doccomment'>/// - Allows forged gids on socket credentials passing.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SETGID</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>6</span>);
+    <span class='doccomment'>/// - Without VFS support for capabilities:</span>
+    <span class='doccomment'>///   * Transfer any capability in your permitted set to any pid,</span>
+    <span class='doccomment'>///     remove any capability in your permitted set from any pid.</span>
+    <span class='doccomment'>/// - With VFS support for capabilities (neither of above, but)</span>
+    <span class='doccomment'>///   * Add any capability from current&#39;s capability bounding set</span>
+    <span class='doccomment'>///     to the current process&#39; inheritable set.</span>
+    <span class='doccomment'>///   * Allow taking bits out of capability bounding set</span>
+    <span class='doccomment'>///   * Allow modification of the securebits for a process</span>
+    <span class='ident'>CAP_SETPCAP</span> <span class='op'>=</span> <span class='number'>8</span>,
 
-<span class='doccomment'>/// - Allows set*uid(2) manipulation (including fsuid).</span>
-<span class='doccomment'>/// - Allows forged pids on socket credentials passing.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SETUID</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>7</span>);
+    <span class='doccomment'>/// Allow modification of S_IMMUTABLE and S_APPEND file attributes</span>
+    <span class='ident'>CAP_LINUX_IMMUTABLE</span> <span class='op'>=</span> <span class='number'>9</span>,
 
-<span class='doccomment'>/// - Without VFS support for capabilities:</span>
-<span class='doccomment'>///   * Transfer any capability in your permitted set to any pid,</span>
-<span class='doccomment'>///     remove any capability in your permitted set from any pid.</span>
-<span class='doccomment'>/// - With VFS support for capabilities (neither of above, but)</span>
-<span class='doccomment'>///   * Add any capability from current&#39;s capability bounding set</span>
-<span class='doccomment'>///     to the current process&#39; inheritable set.</span>
-<span class='doccomment'>///   * Allow taking bits out of capability bounding set</span>
-<span class='doccomment'>///   * Allow modification of the securebits for a process</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SETPCAP</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>8</span>);
+    <span class='doccomment'>/// - Allows binding to TCP/UDP sockets below 1024,</span>
+    <span class='doccomment'>/// - Allows binding to ATM VCIs below 32</span>
+    <span class='ident'>CAP_NET_BIND_SERVICE</span> <span class='op'>=</span> <span class='number'>10</span>,
 
-<span class='doccomment'>/// Allow modification of S_IMMUTABLE and S_APPEND file attributes</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_LINUX_IMMUTABLE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>9</span>);
+    <span class='doccomment'>/// Allows broadcasting, listen to multicast</span>
+    <span class='ident'>CAP_NET_BROADCAST</span> <span class='op'>=</span> <span class='number'>11</span>,
 
-<span class='doccomment'>/// - Allows binding to TCP/UDP sockets below 1024,</span>
-<span class='doccomment'>/// - Allows binding to ATM VCIs below 32</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_NET_BIND_SERVICE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>10</span>);
+    <span class='doccomment'>/// - Allow interface configuration</span>
+    <span class='doccomment'>/// - Allow administration of IP firewall, masquerading and accounting</span>
+    <span class='doccomment'>/// - Allow setting debug option on sockets</span>
+    <span class='doccomment'>/// - Allow modification of routing tables</span>
+    <span class='doccomment'>/// - Allow setting arbitrary process / process group ownership on sockets</span>
+    <span class='doccomment'>/// - Allow binding to any address for transparent proxying (also via NET_RAW)</span>
+    <span class='doccomment'>/// - Allow setting TOS (type of service)</span>
+    <span class='doccomment'>/// - Allow setting promiscuous mode</span>
+    <span class='doccomment'>/// - Allow clearing driver statistics</span>
+    <span class='doccomment'>/// - Allow multicasting</span>
+    <span class='doccomment'>/// - Allow read/write of device-specific registers</span>
+    <span class='doccomment'>/// - Allow activation of ATM control sockets</span>
+    <span class='ident'>CAP_NET_ADMIN</span> <span class='op'>=</span> <span class='number'>12</span>,
 
-<span class='doccomment'>/// Allows broadcasting, listen to multicast</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_NET_BROADCAST</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>11</span>);
+    <span class='doccomment'>/// - Allow use of RAW sockets</span>
+    <span class='doccomment'>/// - Allow use of PACKET sockets</span>
+    <span class='doccomment'>/// - Allow binding to any address for transparent proxying (also via NET_ADMIN)</span>
+    <span class='ident'>CAP_NET_RAW</span> <span class='op'>=</span> <span class='number'>13</span>,
 
-<span class='doccomment'>/// - Allow interface configuration</span>
-<span class='doccomment'>/// - Allow administration of IP firewall, masquerading and accounting</span>
-<span class='doccomment'>/// - Allow setting debug option on sockets</span>
-<span class='doccomment'>/// - Allow modification of routing tables</span>
-<span class='doccomment'>/// - Allow setting arbitrary process / process group ownership on sockets</span>
-<span class='doccomment'>/// - Allow binding to any address for transparent proxying (also via NET_RAW)</span>
-<span class='doccomment'>/// - Allow setting TOS (type of service)</span>
-<span class='doccomment'>/// - Allow setting promiscuous mode</span>
-<span class='doccomment'>/// - Allow clearing driver statistics</span>
-<span class='doccomment'>/// - Allow multicasting</span>
-<span class='doccomment'>/// - Allow read/write of device-specific registers</span>
-<span class='doccomment'>/// - Allow activation of ATM control sockets</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_NET_ADMIN</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>12</span>);
+    <span class='doccomment'>/// - Allow locking of shared memory segments</span>
+    <span class='doccomment'>/// - Allow mlock and mlockall (which doesn&#39;t really have anything to do with IPC)</span>
+    <span class='ident'>CAP_IPC_LOCK</span> <span class='op'>=</span> <span class='number'>14</span>,
 
-<span class='doccomment'>/// - Allow use of RAW sockets</span>
-<span class='doccomment'>/// - Allow use of PACKET sockets</span>
-<span class='doccomment'>/// - Allow binding to any address for transparent proxying (also via NET_ADMIN)</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_NET_RAW</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>13</span>);
+    <span class='doccomment'>/// Override IPC ownership checks</span>
+    <span class='ident'>CAP_IPC_OWNER</span> <span class='op'>=</span> <span class='number'>15</span>,
 
-<span class='doccomment'>/// - Allow locking of shared memory segments</span>
-<span class='doccomment'>/// - Allow mlock and mlockall (which doesn&#39;t really have anything to do with IPC)</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_IPC_LOCK</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>14</span>);
+    <span class='doccomment'>/// Insert and remove kernel modules - modify kernel without limit</span>
+    <span class='ident'>CAP_SYS_MODULE</span> <span class='op'>=</span> <span class='number'>16</span>,
 
-<span class='doccomment'>/// Override IPC ownership checks</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_IPC_OWNER</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>15</span>);
+    <span class='doccomment'>/// - Allow ioperm/iopl access</span>
+    <span class='doccomment'>/// - Allow sending USB messages to any device via /proc/bus/usb</span>
+    <span class='ident'>CAP_SYS_RAWIO</span> <span class='op'>=</span> <span class='number'>17</span>,
 
-<span class='doccomment'>/// Insert and remove kernel modules - modify kernel without limit</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_MODULE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>16</span>);
+    <span class='doccomment'>/// Allow the use of chroot</span>
+    <span class='ident'>CAP_SYS_CHROOT</span> <span class='op'>=</span> <span class='number'>18</span>,
 
-<span class='doccomment'>/// - Allow ioperm/iopl access</span>
-<span class='doccomment'>/// - Allow sending USB messages to any device via /proc/bus/usb</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_RAWIO</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>17</span>);
+    <span class='doccomment'>/// Allow ptrace() of any process</span>
+    <span class='ident'>CAP_SYS_PTRACE</span> <span class='op'>=</span> <span class='number'>19</span>,
 
-<span class='doccomment'>/// Allow the use of chroot</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_CHROOT</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>18</span>);
+    <span class='doccomment'>/// Allow configuration of process accounting</span>
+    <span class='ident'>CAP_SYS_PACCT</span> <span class='op'>=</span> <span class='number'>20</span>,
 
-<span class='doccomment'>/// Allow ptrace() of any process</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_PTRACE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>19</span>);
+    <span class='doccomment'>/// - Allow configuration of the secure attention key</span>
+    <span class='doccomment'>/// - Allow administration of the random device</span>
+    <span class='doccomment'>/// - Allow examination and configuration of disk quotas</span>
+    <span class='doccomment'>/// - Allow setting the domainname</span>
+    <span class='doccomment'>/// - Allow setting the hostname</span>
+    <span class='doccomment'>/// - Allow calling bdflush()</span>
+    <span class='doccomment'>/// - Allow mount() and umount(), setting up new smb connection</span>
+    <span class='doccomment'>/// - Allow some autofs root ioctls</span>
+    <span class='doccomment'>/// - Allow nfsservctl</span>
+    <span class='doccomment'>/// - Allow VM86_REQUEST_IRQ</span>
+    <span class='doccomment'>/// - Allow to read/write pci config on alpha</span>
+    <span class='doccomment'>/// - Allow irix_prctl on mips (setstacksize)</span>
+    <span class='doccomment'>/// - Allow flushing all cache on m68k (sys_cacheflush)</span>
+    <span class='doccomment'>/// - Allow removing semaphores</span>
+    <span class='doccomment'>/// - Used instead of CAP_CHOWN to &quot;chown&quot; IPC message queues, semaphores</span>
+    <span class='doccomment'>///   and shared memory</span>
+    <span class='doccomment'>/// - Allow locking/unlocking of shared memory segment</span>
+    <span class='doccomment'>/// - Allow turning swap on/off</span>
+    <span class='doccomment'>/// - Allow forged pids on socket credentials passing</span>
+    <span class='doccomment'>/// - Allow setting readahead and flushing buffers on block devices</span>
+    <span class='doccomment'>/// - Allow setting geometry in floppy driver</span>
+    <span class='doccomment'>/// - Allow turning DMA on/off in xd driver</span>
+    <span class='doccomment'>/// - Allow administration of md devices (mostly the above, but some</span>
+    <span class='doccomment'>///   extra ioctls)</span>
+    <span class='doccomment'>/// - Allow tuning the ide driver</span>
+    <span class='doccomment'>/// - Allow access to the nvram device</span>
+    <span class='doccomment'>/// - Allow administration of apm_bios, serial and bttv (TV) device</span>
+    <span class='doccomment'>/// - Allow manufacturer commands in isdn CAPI support driver</span>
+    <span class='doccomment'>/// - Allow reading non-standardized portions of pci configuration space</span>
+    <span class='doccomment'>/// - Allow DDI debug ioctl on sbpcd driver</span>
+    <span class='doccomment'>/// - Allow setting up serial ports</span>
+    <span class='doccomment'>/// - Allow sending raw qic-117 commands</span>
+    <span class='doccomment'>/// - Allow enabling/disabling tagged queuing on SCSI controllers and sending</span>
+    <span class='doccomment'>///   arbitrary SCSI commands</span>
+    <span class='doccomment'>/// - Allow setting encryption key on loopback filesystem</span>
+    <span class='doccomment'>/// - Allow setting zone reclaim policy</span>
+    <span class='ident'>CAP_SYS_ADMIN</span> <span class='op'>=</span> <span class='number'>21</span>,
 
-<span class='doccomment'>/// Allow configuration of process accounting</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_PACCT</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>20</span>);
+    <span class='doccomment'>/// Allow use of reboot()</span>
+    <span class='ident'>CAP_SYS_BOOT</span> <span class='op'>=</span> <span class='number'>22</span>,
 
-<span class='doccomment'>/// - Allow configuration of the secure attention key</span>
-<span class='doccomment'>/// - Allow administration of the random device</span>
-<span class='doccomment'>/// - Allow examination and configuration of disk quotas</span>
-<span class='doccomment'>/// - Allow setting the domainname</span>
-<span class='doccomment'>/// - Allow setting the hostname</span>
-<span class='doccomment'>/// - Allow calling bdflush()</span>
-<span class='doccomment'>/// - Allow mount() and umount(), setting up new smb connection</span>
-<span class='doccomment'>/// - Allow some autofs root ioctls</span>
-<span class='doccomment'>/// - Allow nfsservctl</span>
-<span class='doccomment'>/// - Allow VM86_REQUEST_IRQ</span>
-<span class='doccomment'>/// - Allow to read/write pci config on alpha</span>
-<span class='doccomment'>/// - Allow irix_prctl on mips (setstacksize)</span>
-<span class='doccomment'>/// - Allow flushing all cache on m68k (sys_cacheflush)</span>
-<span class='doccomment'>/// - Allow removing semaphores</span>
-<span class='doccomment'>/// - Used instead of CAP_CHOWN to &quot;chown&quot; IPC message queues, semaphores</span>
-<span class='doccomment'>///   and shared memory</span>
-<span class='doccomment'>/// - Allow locking/unlocking of shared memory segment</span>
-<span class='doccomment'>/// - Allow turning swap on/off</span>
-<span class='doccomment'>/// - Allow forged pids on socket credentials passing</span>
-<span class='doccomment'>/// - Allow setting readahead and flushing buffers on block devices</span>
-<span class='doccomment'>/// - Allow setting geometry in floppy driver</span>
-<span class='doccomment'>/// - Allow turning DMA on/off in xd driver</span>
-<span class='doccomment'>/// - Allow administration of md devices (mostly the above, but some</span>
-<span class='doccomment'>///   extra ioctls)</span>
-<span class='doccomment'>/// - Allow tuning the ide driver</span>
-<span class='doccomment'>/// - Allow access to the nvram device</span>
-<span class='doccomment'>/// - Allow administration of apm_bios, serial and bttv (TV) device</span>
-<span class='doccomment'>/// - Allow manufacturer commands in isdn CAPI support driver</span>
-<span class='doccomment'>/// - Allow reading non-standardized portions of pci configuration space</span>
-<span class='doccomment'>/// - Allow DDI debug ioctl on sbpcd driver</span>
-<span class='doccomment'>/// - Allow setting up serial ports</span>
-<span class='doccomment'>/// - Allow sending raw qic-117 commands</span>
-<span class='doccomment'>/// - Allow enabling/disabling tagged queuing on SCSI controllers and sending</span>
-<span class='doccomment'>///   arbitrary SCSI commands</span>
-<span class='doccomment'>/// - Allow setting encryption key on loopback filesystem</span>
-<span class='doccomment'>/// - Allow setting zone reclaim policy</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_ADMIN</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>21</span>);
+    <span class='doccomment'>/// - Allow raising priority and setting priority on other (different</span>
+    <span class='doccomment'>///   UID) processes</span>
+    <span class='doccomment'>/// - Allow use of FIFO and round-robin (realtime) scheduling on own</span>
+    <span class='doccomment'>///   processes and setting the scheduling algorithm used by another</span>
+    <span class='doccomment'>///   process.</span>
+    <span class='doccomment'>/// - Allow setting cpu affinity on other processes</span>
+    <span class='ident'>CAP_SYS_NICE</span> <span class='op'>=</span> <span class='number'>23</span>,
 
-<span class='doccomment'>/// Allow use of reboot()</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_BOOT</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>22</span>);
+    <span class='doccomment'>/// - Override resource limits. Set resource limits.</span>
+    <span class='doccomment'>/// - Override quota limits.</span>
+    <span class='doccomment'>/// - Override reserved space on ext2 filesystem</span>
+    <span class='doccomment'>/// - Modify data journaling mode on ext3 filesystem (uses journaling</span>
+    <span class='doccomment'>///   resources)</span>
+    <span class='doccomment'>/// - **NOTE**: *ext2 honors fsuid when checking for resource overrides, so</span>
+    <span class='doccomment'>///   you can override using fsuid too.*</span>
+    <span class='doccomment'>/// - Override size restrictions on IPC message queues</span>
+    <span class='doccomment'>/// - Allow more than 64hz interrupts from the real-time clock</span>
+    <span class='doccomment'>/// - Override max number of consoles on console allocation</span>
+    <span class='doccomment'>/// - Override max number of keymaps</span>
+    <span class='ident'>CAP_SYS_RESOURCE</span> <span class='op'>=</span> <span class='number'>24</span>,
 
-<span class='doccomment'>/// - Allow raising priority and setting priority on other (different</span>
-<span class='doccomment'>///   UID) processes</span>
-<span class='doccomment'>/// - Allow use of FIFO and round-robin (realtime) scheduling on own</span>
-<span class='doccomment'>///   processes and setting the scheduling algorithm used by another</span>
-<span class='doccomment'>///   process.</span>
-<span class='doccomment'>/// - Allow setting cpu affinity on other processes</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_NICE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>23</span>);
+    <span class='doccomment'>/// - Allow manipulation of system clock</span>
+    <span class='doccomment'>/// - Allow irix_stime on mips</span>
+    <span class='doccomment'>/// - Allow setting the real-time clock</span>
+    <span class='ident'>CAP_SYS_TIME</span> <span class='op'>=</span> <span class='number'>25</span>,
 
-<span class='doccomment'>/// - Override resource limits. Set resource limits.</span>
-<span class='doccomment'>/// - Override quota limits.</span>
-<span class='doccomment'>/// - Override reserved space on ext2 filesystem</span>
-<span class='doccomment'>/// - Modify data journaling mode on ext3 filesystem (uses journaling</span>
-<span class='doccomment'>///   resources)</span>
-<span class='doccomment'>/// - **NOTE**: *ext2 honors fsuid when checking for resource overrides, so</span>
-<span class='doccomment'>///   you can override using fsuid too.*</span>
-<span class='doccomment'>/// - Override size restrictions on IPC message queues</span>
-<span class='doccomment'>/// - Allow more than 64hz interrupts from the real-time clock</span>
-<span class='doccomment'>/// - Override max number of consoles on console allocation</span>
-<span class='doccomment'>/// - Override max number of keymaps</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_RESOURCE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>24</span>);
+    <span class='doccomment'>/// - Allow configuration of tty devices</span>
+    <span class='doccomment'>/// - Allow vhangup() of tty</span>
+    <span class='ident'>CAP_SYS_TTY_CONFIG</span> <span class='op'>=</span> <span class='number'>26</span>,
 
-<span class='doccomment'>/// - Allow manipulation of system clock</span>
-<span class='doccomment'>/// - Allow irix_stime on mips</span>
-<span class='doccomment'>/// - Allow setting the real-time clock</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_TIME</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>25</span>);
+    <span class='doccomment'>/// Allow the privileged aspects of mknod()</span>
+    <span class='ident'>CAP_MKNOD</span> <span class='op'>=</span> <span class='number'>27</span>,
 
-<span class='doccomment'>/// - Allow configuration of tty devices</span>
-<span class='doccomment'>/// - Allow vhangup() of tty</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYS_TTY_CONFIG</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>26</span>);
+    <span class='doccomment'>/// Allow taking of leases on files</span>
+    <span class='ident'>CAP_LEASE</span> <span class='op'>=</span> <span class='number'>28</span>,
 
-<span class='doccomment'>/// Allow the privileged aspects of mknod()</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_MKNOD</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>27</span>);
+    <span class='doccomment'>/// Allow writing the audit log via unicast netlink socket</span>
+    <span class='ident'>CAP_AUDIT_WRITE</span> <span class='op'>=</span> <span class='number'>29</span>,
 
-<span class='doccomment'>/// Allow taking of leases on files</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_LEASE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>28</span>);
+    <span class='doccomment'>/// Allow configurationof audit via unicast netlink socket</span>
+    <span class='ident'>CAP_AUDIT_CONTROL</span> <span class='op'>=</span> <span class='number'>30</span>,
 
-<span class='doccomment'>/// Allow writing the audit log via unicast netlink socket</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_AUDIT_WRITE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>29</span>);
+    <span class='doccomment'>/// Set file capabilities</span>
+    <span class='ident'>CAP_SETFCAP</span> <span class='op'>=</span> <span class='number'>31</span>,
 
-<span class='doccomment'>/// Allow configurationof audit via unicast netlink socket</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_AUDIT_CONTROL</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>30</span>);
+    <span class='doccomment'>/// Override MAC access.</span>
+    <span class='doccomment'>/// The base kernel enforces no MAC policy.</span>
+    <span class='doccomment'>/// An LSM may enforce a MAC policy, and if it does and it chooses</span>
+    <span class='doccomment'>/// to implement capability based overrides of that policy, this is</span>
+    <span class='doccomment'>/// the capability it should use to do so.</span>
+    <span class='ident'>CAP_MAC_OVERRIDE</span> <span class='op'>=</span> <span class='number'>32</span>,
 
-<span class='doccomment'>/// Set file capabilities</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SETFCAP</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>31</span>);
+    <span class='doccomment'>/// Allow MAC configuration or state changes.</span>
+    <span class='doccomment'>/// The base kernel requires no MAC configuration.</span>
+    <span class='doccomment'>/// An LSM may enforce a MAC policy, and if it does and it chooses</span>
+    <span class='doccomment'>/// to implement capability based checks on modifications to that</span>
+    <span class='doccomment'>/// policy or the data required to maintain it, this is the</span>
+    <span class='doccomment'>/// capability it should use to do so.</span>
+    <span class='ident'>CAP_MAC_ADMIN</span> <span class='op'>=</span> <span class='number'>33</span>,
 
-<span class='doccomment'>/// Override MAC access.</span>
-<span class='doccomment'>/// The base kernel enforces no MAC policy.</span>
-<span class='doccomment'>/// An LSM may enforce a MAC policy, and if it does and it chooses</span>
-<span class='doccomment'>/// to implement capability based overrides of that policy, this is</span>
-<span class='doccomment'>/// the capability it should use to do so.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_MAC_OVERRIDE</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>32</span>);
+    <span class='doccomment'>/// Allow configuring the kernel&#39;s syslog (printk behaviour)</span>
+    <span class='ident'>CAP_SYSLOG</span> <span class='op'>=</span> <span class='number'>34</span>,
 
-<span class='doccomment'>/// Allow MAC configuration or state changes.</span>
-<span class='doccomment'>/// The base kernel requires no MAC configuration.</span>
-<span class='doccomment'>/// An LSM may enforce a MAC policy, and if it does and it chooses</span>
-<span class='doccomment'>/// to implement capability based checks on modifications to that</span>
-<span class='doccomment'>/// policy or the data required to maintain it, this is the</span>
-<span class='doccomment'>/// capability it should use to do so.</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_MAC_ADMIN</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>33</span>);
+    <span class='doccomment'>/// Allow triggering something that will wake the system</span>
+    <span class='ident'>CAP_WAKE_ALARM</span> <span class='op'>=</span> <span class='number'>35</span>,
 
-<span class='doccomment'>/// Allow configuring the kernel&#39;s syslog (printk behaviour)</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_SYSLOG</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>34</span>);
+    <span class='doccomment'>/// Allow preventing system suspends</span>
+    <span class='ident'>CAP_BLOCK_SUSPEND</span> <span class='op'>=</span> <span class='number'>36</span>,
 
-<span class='doccomment'>/// Allow triggering something that will wake the system</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_WAKE_ALARM</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>35</span>);
+    <span class='doccomment'>/// Allow reading the audit log via multicast netlink socket</span>
+    <span class='ident'>CAP_AUDIT_READ</span> <span class='op'>=</span> <span class='number'>37</span>,
 
-<span class='doccomment'>/// Allow preventing system suspends</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_BLOCK_SUSPEND</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>36</span>);
-
-<span class='doccomment'>/// Allow reading the audit log via multicast netlink socket</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>CAP_AUDIT_READ</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>Capability</span>(<span class='number'>37</span>);
+    <span class='doccomment'>/// The LAST capability option</span>
+    <span class='ident'>CAP_LAST_CAP</span>,
+}
 
 <span class='doccomment'>/// The bound trait checks if the capability is</span>
 <span class='doccomment'>/// set for the current process.</span>
@@ -963,21 +1016,21 @@
 
     <span class='doccomment'>/// Returns true if the Capability has been applied</span>
     <span class='doccomment'>/// to the current process via a call to cap_get_bound.</span>
-    <span class='kw'>fn</span> <span class='ident'>is_bound</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='kw'>fn</span> <span class='ident'>is_bound</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 
     <span class='doccomment'>/// Drops the capability for the current process</span>
     <span class='doccomment'>/// via a call to cap_drop_bound.</span>
-    <span class='kw'>fn</span> <span class='ident'>drop_bound</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='kw'>fn</span> <span class='ident'>drop_bound</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 }
 
 <span class='kw'>impl</span> <span class='ident'>Bound</span> <span class='kw'>for</span> <span class='ident'>Capability</span> {
-    <span class='kw'>fn</span> <span class='ident'>is_bound</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>is_bound</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>let</span> <span class='ident'>val</span>: <span class='ident'>cap_value_t</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>into</span>();
         <span class='kw'>let</span> <span class='ident'>rc</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>cap_get_bound</span>(<span class='ident'>val</span>) };
         <span class='ident'>rc</span> <span class='op'>==</span> <span class='number'>0</span>
     }
 
-    <span class='kw'>fn</span> <span class='ident'>drop_bound</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>drop_bound</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>let</span> <span class='ident'>val</span>: <span class='ident'>cap_value_t</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>into</span>();
         <span class='kw'>let</span> <span class='ident'>rc</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>cap_drop_bound</span>(<span class='ident'>val</span>) };
         <span class='ident'>rc</span> <span class='op'>==</span> <span class='number'>0</span>
@@ -986,15 +1039,59 @@
 
 <span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Capability</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>cap_value_t</span> {
     <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>c</span>: <span class='ident'>Capability</span>) <span class='op'>-&gt;</span> <span class='ident'>cap_value_t</span> {
-        <span class='kw'>let</span> <span class='ident'>Capability</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='ident'>c</span>;
-        <span class='kw'>return</span> <span class='ident'>x</span>;
+        <span class='kw'>return</span> <span class='ident'>c</span> <span class='kw'>as</span> <span class='ident'>cap_value_t</span>;
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Capability</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>cap_value_t</span> {
     <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>c</span>: <span class='kw-2'>&amp;</span><span class='ident'>Capability</span>) <span class='op'>-&gt;</span> <span class='ident'>cap_value_t</span> {
-        <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>Capability</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='ident'>c</span>;
-        <span class='kw'>return</span> <span class='ident'>x</span>;
+        <span class='kw'>return</span> <span class='op'>*</span><span class='ident'>c</span> <span class='kw'>as</span> <span class='ident'>cap_value_t</span>;
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>cap_value_t</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Capability</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>c</span>: <span class='ident'>cap_value_t</span>) <span class='op'>-&gt;</span> <span class='ident'>Capability</span> {
+        <span class='kw'>match</span> <span class='ident'>c</span> {
+            <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_CHOWN</span>,
+            <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_DAC_OVERRIDE</span>,
+            <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_DAC_READ_SEARCH</span>,
+            <span class='number'>3</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_FOWNER</span>,
+            <span class='number'>4</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_FSETID</span>,
+            <span class='number'>5</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_KILL</span>,
+            <span class='number'>6</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SETGID</span>,
+            <span class='number'>7</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SETUID</span>,
+            <span class='number'>8</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SETPCAP</span>,
+            <span class='number'>9</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_LINUX_IMMUTABLE</span>,
+            <span class='number'>10</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_NET_BIND_SERVICE</span>,
+            <span class='number'>11</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_NET_BROADCAST</span>,
+            <span class='number'>12</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_NET_ADMIN</span>,
+            <span class='number'>13</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_NET_RAW</span>,
+            <span class='number'>14</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_IPC_LOCK</span>,
+            <span class='number'>15</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_IPC_OWNER</span>,
+            <span class='number'>16</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_MODULE</span>,
+            <span class='number'>17</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_RAWIO</span>,
+            <span class='number'>18</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_CHROOT</span>,
+            <span class='number'>19</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_PTRACE</span>,
+            <span class='number'>20</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_PACCT</span>,
+            <span class='number'>21</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_ADMIN</span>,
+            <span class='number'>22</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_BOOT</span>,
+            <span class='number'>23</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_NICE</span>,
+            <span class='number'>24</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_RESOURCE</span>,
+            <span class='number'>25</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_TIME</span>,
+            <span class='number'>26</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_TTY_CONFIG</span>,
+            <span class='number'>27</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_MKNOD</span>,
+            <span class='number'>28</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_LEASE</span>,
+            <span class='number'>29</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_AUDIT_WRITE</span>,
+            <span class='number'>30</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_AUDIT_CONTROL</span>,
+            <span class='number'>31</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SETFCAP</span>,
+            <span class='number'>32</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_MAC_OVERRIDE</span>,
+            <span class='number'>33</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_MAC_ADMIN</span>,
+            <span class='number'>34</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_SYSLOG</span>,
+            <span class='number'>35</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_WAKE_ALARM</span>,
+            <span class='number'>36</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_BLOCK_SUSPEND</span>,
+            <span class='number'>37</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_AUDIT_READ</span>,
+            _ <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>Capability</span>::<span class='ident'>CAP_LAST_CAP</span>,
+        }
     }
 }
 
@@ -1008,7 +1105,8 @@
         <span class='kw'>if</span> <span class='ident'>rc</span> <span class='op'>!=</span> <span class='number'>0</span> {
             <span class='kw'>return</span> <span class='prelude-val'>Err</span>(());
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Capability</span>(<span class='ident'>val</span>))
+        <span class='kw'>let</span> <span class='ident'>result</span>: <span class='ident'>Capability</span> <span class='op'>=</span> <span class='ident'>val</span>.<span class='ident'>into</span>();
+        <span class='prelude-val'>Ok</span>(<span class='ident'>result</span>)
     }
 }
 
@@ -1246,10 +1344,10 @@
     <span class='kw'>fn</span> <span class='ident'>test_tostring</span>() {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Capabilities</span>::<span class='ident'>new</span>().<span class='ident'>unwrap</span>();
         <span class='ident'>c</span>.<span class='ident'>reset_all</span>();
-        <span class='ident'>c</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>CAP_CHOWN</span>], <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>, <span class='boolval'>true</span>);
+        <span class='ident'>c</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>Capability</span>::<span class='ident'>CAP_CHOWN</span>], <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>, <span class='boolval'>true</span>);
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>to_string</span>() <span class='op'>==</span> <span class='ident'>String</span>::<span class='ident'>from</span>(<span class='string'>&quot;= cap_chown+p&quot;</span>));
 
-        <span class='ident'>c</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>CAP_SETUID</span>], <span class='ident'>Flag</span>::<span class='ident'>Effective</span>, <span class='boolval'>true</span>);
+        <span class='ident'>c</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>Capability</span>::<span class='ident'>CAP_SETUID</span>], <span class='ident'>Flag</span>::<span class='ident'>Effective</span>, <span class='boolval'>true</span>);
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>c</span>.<span class='ident'>to_string</span>() <span class='op'>==</span> <span class='ident'>String</span>::<span class='ident'>from</span>(<span class='string'>&quot;= cap_chown+p cap_setuid+e&quot;</span>));
     }
 
@@ -1257,12 +1355,12 @@
     <span class='kw'>fn</span> <span class='ident'>test_fromstr</span>() {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>a</span> <span class='op'>=</span> <span class='ident'>Capabilities</span>::<span class='ident'>new</span>().<span class='ident'>unwrap</span>();
         <span class='ident'>a</span>.<span class='ident'>reset_all</span>();
-        <span class='ident'>a</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>CAP_SYS_ADMIN</span>], <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>, <span class='boolval'>true</span>);
+        <span class='ident'>a</span>.<span class='ident'>update</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_ADMIN</span>], <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>, <span class='boolval'>true</span>);
 
         <span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>to_string</span>().<span class='ident'>parse</span>::<span class='op'>&lt;</span><span class='ident'>Capabilities</span><span class='op'>&gt;</span>().<span class='ident'>unwrap</span>();
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>a</span> <span class='op'>==</span> <span class='ident'>b</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>check</span>(<span class='ident'>CAP_SYS_ADMIN</span>, <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>));
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>check</span>(<span class='ident'>CAP_SYS_ADMIN</span>, <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>));
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>check</span>(<span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_ADMIN</span>, <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>));
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>b</span>.<span class='ident'>check</span>(<span class='ident'>Capability</span>::<span class='ident'>CAP_SYS_ADMIN</span>, <span class='ident'>Flag</span>::<span class='ident'>Permitted</span>));
     }
 }
 </pre>
