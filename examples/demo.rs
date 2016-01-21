@@ -2,24 +2,24 @@
 // apply the capability set.
 extern crate capabilities;
 
+use capabilities::{Capability, Capabilities, Flag};
+
 fn main() {
 
-    let mut capability_set = capabilities::Capabilities::new().unwrap();
+    let mut capability_set = Capabilities::new().unwrap();
     capability_set.reset_all();
 
-    let flags = [capabilities::CAP_CHOWN, capabilities::CAP_SETUID, capabilities::CAP_SYS_RESOURCE];
+    let flags = [Capability::CAP_CHOWN, Capability::CAP_SETUID, Capability::CAP_SYS_RESOURCE];
 
-    capability_set.update(&flags, capabilities::Flag::Permitted, true);
-    capability_set.update(&flags, capabilities::Flag::Effective, true);
-    capability_set.update(&[capabilities::CAP_SYS_TIME],
-                          capabilities::Flag::Permitted,
-                          true);
+    capability_set.update(&flags, Flag::Permitted, true);
+    capability_set.update(&flags, Flag::Effective, true);
+    capability_set.update(&[Capability::CAP_SYS_TIME], Flag::Permitted, true);
 
     println!("Working set - {}", capability_set);
 
     match capability_set.apply() {
         Ok(_) => {
-            let current = capabilities::Capabilities::from_current_proc().unwrap();
+            let current = Capabilities::from_current_proc().unwrap();
             println!("Current - {}", current);
         }
         Err(e) => {
