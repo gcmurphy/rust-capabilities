@@ -7,6 +7,7 @@ description = "Rust bindings to work with Linux Capabilities"
 repository = "https://github.com/gcmurphy/rust-capabilities"
 homepage = "https://github.com/gcmurphy/rust-capabilities"
 documentation = "http://gcmurphy.github.io/rust-capabilities/capabilities/index.html"
+build = "build.rs"
 
 [dependencies]
 libc = "0.2.4"
