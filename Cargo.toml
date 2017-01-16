@@ -1,6 +1,6 @@
 [package]
 name = "capabilities"
-version = "0.1.0"
+version = "0.2.1"
 authors = ["Grant Murphy <grantcmurphy@gmail.com>"]
 license = "MPL-2.0"
 description = "Rust bindings to work with Linux Capabilities"
