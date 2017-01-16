@@ -24,7 +24,6 @@ type cap_flag_t = u32;
 #[allow(non_camel_case_types)]
 type cap_flag_value_t = i32;
 
-#[link(name="cap")]
 extern "C" {
 
     // libcap/cap_alloc.c
