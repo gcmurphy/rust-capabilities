@@ -459,56 +459,56 @@ pub struct Capabilities {
 
 impl Capabilities {
     /// Create a new empty capability set
-    pub fn new() -> Option<Capabilities> {
+    pub fn new() -> Result<Capabilities, io::Error> {
         let caps = unsafe { cap_init() };
         if caps.is_null() {
-            return None;
+            return Err(io::Error::last_os_error());
         }
-        Some(Capabilities { capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 
     /// Create a capability set from the specified file descriptor
-    pub fn from_fd(fd: isize) -> Option<Capabilities> {
+    pub fn from_fd(fd: isize) -> Result<Capabilities, io::Error> {
         let caps = unsafe { cap_get_fd(fd as c_int) };
         if caps.is_null() {
-            return None;
+            return Err(io::Error::last_os_error());
         }
-        Some(Capabilities { capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 
     /// Create a capability set base on the supplied file path
-    pub fn from_file(path: &str) -> Option<Capabilities> {
+    pub fn from_file(path: &str) -> Result<Capabilities, io::Error> {
         let file = fs::metadata(path);
         if file.is_err() {
-            return None;
+            return Err(file.err().unwrap());
         }
 
         let cstr = ffi::CString::new(path).unwrap();
         let caps = unsafe { cap_get_file(cstr.as_ptr()) };
         if caps.is_null() {
-            return None;
+            return Err(io::Error::last_os_error());
         }
 
-        Some(Capabilities { capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 
     /// Create a capability set from the supplied process ID.
-    pub fn from_pid(pid: isize) -> Option<Capabilities> {
+    pub fn from_pid(pid: isize) -> Result<Capabilities, io::Error> {
         let caps = unsafe { cap_get_pid(pid as pid_t) };
         if caps.is_null() {
-            return None;
+            return Err(io::Error::last_os_error());
         }
-        Some(Capabilities { capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 
     /// Create a capability set based on the current processes
     /// capabilities.
-    pub fn from_current_proc() -> Option<Capabilities> {
+    pub fn from_current_proc() -> Result<Capabilities, io::Error> {
         let caps = unsafe { cap_get_proc() };
         if caps.is_null() {
-            return None;
+            return Err(io::Error::last_os_error());
         }
-        Some(Capabilities { capabilities: caps })
+        Ok(Capabilities { capabilities: caps })
     }
 
     /// Clear all the entries in the capability set.
