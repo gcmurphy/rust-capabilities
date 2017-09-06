@@ -1,9 +1,9 @@
 [package]
 name = "capabilities"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Grant Murphy <grantcmurphy@gmail.com>"]
 license = "MPL-2.0"
-description = "Rust bindings to work with Linux Capabilities"
+description = "Rust bindings to libcap. Allows you work with Linux Capabilities from Rust."
 repository = "https://github.com/gcmurphy/rust-capabilities"
 homepage = "https://github.com/gcmurphy/rust-capabilities"
 documentation = "http://gcmurphy.github.io/rust-capabilities/capabilities/index.html"
