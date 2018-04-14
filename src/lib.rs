@@ -1,4 +1,4 @@
-#[cfg(target_os="linux")]
+#![cfg(target_os="linux")]
 
 extern crate libc;
 use libc::{c_void, c_int, c_char, pid_t, ssize_t};
