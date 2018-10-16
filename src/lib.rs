@@ -425,6 +425,7 @@ impl fmt::Display for Capability {
 /// Refer to the [Linux kernel capabilities
 /// FAQ](ftp://www.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.2/capfaq-0.2.txt) for
 /// more details.
+#[derive(Copy, Clone)]
 pub enum Flag {
     /// When a process tries to do a privileged operation, the
     /// operating system will check the appropriate bit in the effective set
